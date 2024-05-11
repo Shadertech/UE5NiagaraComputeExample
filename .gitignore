@@ -94,3 +94,4 @@ Content/Maps/M_TestLab_GB_Meshing.umap
 Content/Maps/M_TestLab_Processing.umap
 Content/Blueprint/BP_ComputeGBProcessor.uasset
 Content/Blueprint/BP_DefaultInstancedStaticMeshActor.uasset
+Content/Niagara/Misc/*
