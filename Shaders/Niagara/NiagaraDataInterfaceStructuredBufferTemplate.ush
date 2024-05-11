@@ -1,0 +1,33 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+#include "/ComputeExample/CS_BoidsStruct.ush"
+
+StructuredBuffer<FBoidItem> {ParameterName}_boidsIn;
+int {ParameterName}_numBoids;
+
+void SampleBoidsPosition_{ParameterName}(in int id, out bool IsValid, out float3 OutValue)
+{
+	if(id >= {ParameterName}_numBoids)
+	{
+		IsValid = false;
+		OutValue = 0;
+		return;
+	}
+
+	IsValid = true;
+	//OutValue = float3((float)id, 0.0f, 0.0f);
+	OutValue = {ParameterName}_boidsIn[id].pos;
+}
+
+void SampleBoidsVelocity_{ParameterName}(in int id, out bool IsValid, out float3 OutValue)
+{
+	if(id >= {ParameterName}_numBoids)
+	{
+		IsValid = false;
+		OutValue = 0;
+		return;
+	}
+
+	IsValid = true;
+	//OutValue = float3(0.0f, 0.0f, 0.0f);
+	OutValue = {ParameterName}_boidsIn[id].vel;
+}

@@ -1,0 +1,9 @@
+// Basic random generation
+float randPCG(float min, float max, inout uint rngState)
+{
+    rngState = rngState * 747796405u + 2891336453u;
+    uint state = rngState;
+    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    float f = ((word >> 22u) ^ word) / 4294967296.0;
+    return f * (max - min) + min;
+}
