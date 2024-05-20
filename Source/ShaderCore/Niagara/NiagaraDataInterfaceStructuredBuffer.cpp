@@ -105,7 +105,6 @@ void UNiagaraDataInterfaceStructuredBuffer::SetShaderParameters(const FNiagaraDa
 			FRDGBufferRef ReadScopedRef = GraphBuilder.RegisterExternalBuffer(InstanceData_RT->ReadPooled, TEXT("Niagara_BoidsIn_StructuredBuffer"), ERDGBufferFlags::MultiFrame);
 			FRDGBufferSRVRef ReadScopedSRV = GraphBuilder.CreateSRV(ReadScopedRef);
 			Parameters->boidsIn = ReadScopedSRV;
-			//Parameters->boidsIn = Context.GetComputeDispatchInterface().GetEmptyBufferSRV(GraphBuilder, EPixelFormat::PF_A16B16G16R16);
 			Parameters->numBoids = InstanceData_RT->numBoids;
 			return;
 		}

@@ -23,14 +23,21 @@ Temaran has produced an awesome resource to learn compute shaders and I suggest 
   - `ENQUEUE_RENDER_COMMAND`
 - **Examples**:
   - Example1: Structured Buffer -> Niagara
-  - Example2: Old school non-graph builder version of Structured Buffer -> Niagara (PRIVATISED)
 
-### 3. NiagaraExample
+### 3. ComputeRPLegacyExample
+
+- **Overview**:
+  - Demonstrates the use of Graph Builder to setup and run compute shaders through a boids example as part of a custom pass through legacy methods of binding shader paramaters
+  - `ENQUEUE_RENDER_COMMAND`
+- **Examples**:
+  - Example1: Structured Buffer -> Niagara
+
+### 4. NiagaraExample
 
 - **Overview**:
   - A boids system implemented entirely within Niagara without compute shaders and using the Particle Attribute Reader instead.
 
-### 4. ShaderCore
+### 5. ShaderCore
 
 - **Overview**:
   - A shared module that provides default shader settings and utilities, ensuring consistency and efficiency across all modules.

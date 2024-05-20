@@ -46,6 +46,18 @@
 			]
 		},
 		{
+			"Name": "ComputeRPLegacyExample",
+			"Type": "Runtime",
+			"LoadingPhase": "PostConfigInit",
+			"PlatformAllowList": [
+				"Win64"
+			],
+			"Dependencies": [
+				"ShaderCore",
+				"ComputeRPExample"
+			]
+		},
+		{
 			"Name": "NiagaraExample",
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
