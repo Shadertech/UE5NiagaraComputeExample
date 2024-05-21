@@ -101,13 +101,21 @@ void AComputeRPLegacyEmitter::InitComputeShader_RenderThread(FRHICommandListImme
 	readRef = RHICmdList.CreateShaderResourceView(readBuffer, readSRVCreateDesc);
 	writeRef = RHICmdList.CreateUnorderedAccessView(writeBuffer, false, false);
 
-	ComputeShader->SetUniformParameters(RHICmdList, ShaderRHI, BoidConstantParameters, BoidVariableParameters, 0.0f);
-	ComputeShader->SetBufferParameters(RHICmdList, ShaderRHI, nullptr, writeRef);
+	FRHIBatchedShaderParameters& BatchedParameters = RHICmdList.GetScratchShaderParameters();
+
+	ComputeShader->SetUniformParameters(BatchedParameters, BoidConstantParameters, BoidVariableParameters, 0.0f);
+	ComputeShader->SetBufferParameters(BatchedParameters, nullptr, writeRef);
+
+	RHICmdList.SetBatchedShaderParameters(ShaderRHI, BatchedParameters);
 
 	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
 	DispatchComputeShader(RHICmdList, ComputeShader, GroupCounts.X, GroupCounts.Y, GroupCounts.Z);
 
-	ComputeShader->UnsetBufferParameters(RHICmdList, ShaderRHI);
+	FRHIBatchedShaderUnbinds& BatchedUnbinds = RHICmdList.GetScratchShaderUnbinds();
+	/*UnsetShaderUAVs<FRHICommandList, FInitBoidsLegacyExampleCS>(RHICmdList, ComputeShader, ShaderRHI);
+	UnsetShaderSRVs<FRHICommandList, FInitBoidsLegacyExampleCS>(RHICmdList, ComputeShader, ShaderRHI);*/
+	ComputeShader->UnsetBufferParameters(BatchedUnbinds);
+	RHICmdList.SetBatchedShaderUnbinds(ShaderRHI, BatchedUnbinds);
 
 	RHICmdList.CopyBufferRegion(readBuffer, 0, writeBuffer, 0, BoidItemSize * BoidsArray.Num());
 
@@ -137,13 +145,19 @@ void AComputeRPLegacyEmitter::ExecuteComputeShader_RenderThread(FRHICommandListI
 	FRHIComputeShader* ShaderRHI = ComputeShader.GetComputeShader();
 	SetComputePipelineState(RHICmdList, ShaderRHI);
 
-	ComputeShader->SetUniformParameters(RHICmdList, ShaderRHI, BoidConstantParameters, BoidVariableParameters, LastDeltaTime);
-	ComputeShader->SetBufferParameters(RHICmdList, ShaderRHI, readRef, writeRef);
+	FRHIBatchedShaderParameters& BatchedParameters = RHICmdList.GetScratchShaderParameters();
+
+	ComputeShader->SetUniformParameters(BatchedParameters, BoidConstantParameters, BoidVariableParameters, LastDeltaTime);
+	ComputeShader->SetBufferParameters(BatchedParameters, readRef, writeRef);
+
+	RHICmdList.SetBatchedShaderParameters(ShaderRHI, BatchedParameters);
 
 	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
 	DispatchComputeShader(RHICmdList, ComputeShader, GroupCounts.X, GroupCounts.Y, GroupCounts.Z);
 
-	ComputeShader->UnsetBufferParameters(RHICmdList, ShaderRHI);
+	FRHIBatchedShaderUnbinds& BatchedUnbinds = RHICmdList.GetScratchShaderUnbinds();
+	ComputeShader->UnsetBufferParameters(BatchedUnbinds);
+	RHICmdList.SetBatchedShaderUnbinds(ShaderRHI, BatchedUnbinds);
 
 	RHICmdList.CopyBufferRegion(readBuffer, 0, writeBuffer, 0, BoidItemSize * BoidsArray.Num());
 
