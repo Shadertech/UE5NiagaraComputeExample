@@ -8,11 +8,11 @@
 #include "Engine/TextureRenderTarget2D.h"
 #include "DataDrivenShaderPlatformInfo.h"
 
-class FBoidsDrawerExampleCS : public FGlobalShader
+class FBoidsGBDrawerExampleCS : public FGlobalShader
 {
 public:
-	DECLARE_GLOBAL_SHADER(FBoidsDrawerExampleCS);
-	SHADER_USE_PARAMETER_STRUCT(FBoidsDrawerExampleCS, FGlobalShader);
+	DECLARE_GLOBAL_SHADER(FBoidsGBDrawerExampleCS);
+	SHADER_USE_PARAMETER_STRUCT(FBoidsGBDrawerExampleCS, FGlobalShader);
 
 	BEGIN_SHADER_PARAMETER_STRUCT(FParameters, )
 		SHADER_PARAMETER_RDG_TEXTURE_UAV(RWTexture2D<float4>, OutputTexture)
@@ -29,7 +29,7 @@ public:
 
 // This will tell the engine to create the shader and where the shader entry point is.
 //                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FBoidsDrawerExampleCS, "/ComputeExample/CS_BoidsTexture.usf", "DrawBoids", SF_Compute);
+IMPLEMENT_GLOBAL_SHADER(FBoidsGBDrawerExampleCS, "/ComputeExample/CS_BoidsTexture.usf", "DrawBoids", SF_Compute);
 
 class FComputeShader_BoidsDrawer
 {

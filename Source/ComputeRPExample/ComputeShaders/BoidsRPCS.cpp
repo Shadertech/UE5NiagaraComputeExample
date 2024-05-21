@@ -6,13 +6,13 @@
 
 #define BoidsExample_ThreadsPerGroup 512
 
-bool FInitBoidsExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
+bool FBoidsRPInitExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
 {
 	// This example shader uses wave operations, so it requires SM6.
 	return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM6);
 }
 
-inline void FInitBoidsExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+inline void FBoidsRPInitExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 {
 	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 
@@ -21,13 +21,13 @@ inline void FInitBoidsExampleCS::ModifyCompilationEnvironment(const FGlobalShade
 	OutEnvironment.SetDefine(TEXT("THREADGROUPSIZE_Z"), 1);
 }
 
-bool FBoidsUpdateExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
+bool FBoidsRPUpdateExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
 {
 	// This example shader uses wave operations, so it requires SM6.
 	return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM6);
 }
 
-inline void FBoidsUpdateExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+inline void FBoidsRPUpdateExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 {
 	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 
@@ -36,13 +36,13 @@ inline void FBoidsUpdateExampleCS::ModifyCompilationEnvironment(const FGlobalSha
 	OutEnvironment.SetDefine(TEXT("THREADGROUPSIZE_Z"), 1);
 }
 
-bool FBoidsCopyBufferExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
+bool FBoidsRPCopyBufferExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
 {
 	// This example shader uses wave operations, so it requires SM6.
 	return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM6);
 }
 
-inline void FBoidsCopyBufferExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+inline void FBoidsRPCopyBufferExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 {
 	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 

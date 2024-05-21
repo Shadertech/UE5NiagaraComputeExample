@@ -73,14 +73,14 @@ private:
 	LAYOUT_FIELD(FShaderResourceParameter, boidsIn);
 };
 
-class FInitBoidsLegacyExampleCS : public FGlobalShader
+class FBoidsRPInitLegacyExampleCS : public FGlobalShader
 {
-	DECLARE_SHADER_TYPE(FInitBoidsLegacyExampleCS, Global);
+	DECLARE_SHADER_TYPE(FBoidsRPInitLegacyExampleCS, Global);
 
 public:
-	FInitBoidsLegacyExampleCS() {}
+	FBoidsRPInitLegacyExampleCS() {}
 
-	explicit FInitBoidsLegacyExampleCS(const ShaderMetaType::CompiledShaderInitializerType& Initializer);
+	explicit FBoidsRPInitLegacyExampleCS(const ShaderMetaType::CompiledShaderInitializerType& Initializer);
 
 	void SetUniformParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidConstantParameters& BoidConstantParameters, FBoidVariableParameters& BoidVariableParameters, float _deltaTime);
 	void SetBufferParameters(FRHIBatchedShaderParameters& BatchedParameters, FShaderResourceViewRHIRef readRef, FUnorderedAccessViewRHIRef writeRef);
@@ -96,15 +96,15 @@ private:
 
 // This will tell the engine to create the shader and where the shader entry point is.
 //                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FInitBoidsLegacyExampleCS, "/ComputeExample/CS_Boids.usf", "GenerateBoids", SF_Compute);
+IMPLEMENT_GLOBAL_SHADER(FBoidsRPInitLegacyExampleCS, "/ComputeExample/CS_Boids.usf", "GenerateBoids", SF_Compute);
 
-class FBoidsUpdateLegacyExampleCS : public FGlobalShader
+class FBoidsRPUpdateLegacyExampleCS : public FGlobalShader
 {
-	DECLARE_SHADER_TYPE(FBoidsUpdateLegacyExampleCS, Global);
+	DECLARE_SHADER_TYPE(FBoidsRPUpdateLegacyExampleCS, Global);
 
 public:
-	FBoidsUpdateLegacyExampleCS() {}
-	explicit FBoidsUpdateLegacyExampleCS(const ShaderMetaType::CompiledShaderInitializerType& Initializer);
+	FBoidsRPUpdateLegacyExampleCS() {}
+	explicit FBoidsRPUpdateLegacyExampleCS(const ShaderMetaType::CompiledShaderInitializerType& Initializer);
 
 	void SetUniformParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidConstantParameters& BoidConstantParameters, FBoidVariableParameters& BoidVariableParameters, float _deltaTime);
 	void SetBufferParameters(FRHIBatchedShaderParameters& BatchedParameters, FShaderResourceViewRHIRef readRef, FUnorderedAccessViewRHIRef writeRef);
@@ -120,4 +120,4 @@ private:
 
 // This will tell the engine to create the shader and where the shader entry point is.
 //                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FBoidsUpdateLegacyExampleCS, "/ComputeExample/CS_Boids.usf", "UpdateBoids", SF_Compute);
+IMPLEMENT_GLOBAL_SHADER(FBoidsRPUpdateLegacyExampleCS, "/ComputeExample/CS_Boids.usf", "UpdateBoids", SF_Compute);

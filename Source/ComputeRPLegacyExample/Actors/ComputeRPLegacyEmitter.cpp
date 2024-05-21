@@ -72,7 +72,7 @@ void AComputeRPLegacyEmitter::InitComputeShader_RenderThread(FRHICommandListImme
 {
 	check(IsInRenderingThread());
 
-	TShaderMapRef<FInitBoidsLegacyExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
+	TShaderMapRef<FBoidsRPInitLegacyExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
 	FRHIComputeShader* ShaderRHI = ComputeShader.GetComputeShader();
 	SetComputePipelineState(RHICmdList, ShaderRHI);
 
@@ -112,8 +112,8 @@ void AComputeRPLegacyEmitter::InitComputeShader_RenderThread(FRHICommandListImme
 	DispatchComputeShader(RHICmdList, ComputeShader, GroupCounts.X, GroupCounts.Y, GroupCounts.Z);
 
 	FRHIBatchedShaderUnbinds& BatchedUnbinds = RHICmdList.GetScratchShaderUnbinds();
-	/*UnsetShaderUAVs<FRHICommandList, FInitBoidsLegacyExampleCS>(RHICmdList, ComputeShader, ShaderRHI);
-	UnsetShaderSRVs<FRHICommandList, FInitBoidsLegacyExampleCS>(RHICmdList, ComputeShader, ShaderRHI);*/
+	/*UnsetShaderUAVs<FRHICommandList, FBoidsRPInitLegacyExampleCS>(RHICmdList, ComputeShader, ShaderRHI);
+	UnsetShaderSRVs<FRHICommandList, FBoidsRPInitLegacyExampleCS>(RHICmdList, ComputeShader, ShaderRHI);*/
 	ComputeShader->UnsetBufferParameters(BatchedUnbinds);
 	RHICmdList.SetBatchedShaderUnbinds(ShaderRHI, BatchedUnbinds);
 
@@ -141,7 +141,7 @@ void AComputeRPLegacyEmitter::ExecuteComputeShader_RenderThread(FRHICommandListI
 {
 	check(IsInRenderingThread());
 
-	TShaderMapRef<FBoidsUpdateLegacyExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
+	TShaderMapRef<FBoidsRPUpdateLegacyExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
 	FRHIComputeShader* ShaderRHI = ComputeShader.GetComputeShader();
 	SetComputePipelineState(RHICmdList, ShaderRHI);
 

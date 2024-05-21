@@ -3,13 +3,13 @@
 
 #define BoidsExample_ThreadsPerGroup 512
 
-bool FInitBoidsExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
+bool FBoidsGBInitExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
 {
 	// This example shader uses wave operations, so it requires SM6.
 	return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM6);
 }
 
-inline void FInitBoidsExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+inline void FBoidsGBInitExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 {
 	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 
@@ -18,13 +18,13 @@ inline void FInitBoidsExampleCS::ModifyCompilationEnvironment(const FGlobalShade
 	OutEnvironment.SetDefine(TEXT("THREADGROUPSIZE_Z"), 1);
 }
 
-bool FBoidsUpdateExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
+bool FBoidsGBUpdateExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
 {
 	// This example shader uses wave operations, so it requires SM6.
 	return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM6);
 }
 
-inline void FBoidsUpdateExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+inline void FBoidsGBUpdateExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 {
 	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 
@@ -61,7 +61,7 @@ void FComputeShader_Boids::InitBoidsExample_RenderThread(FRDGBuilder& GraphBuild
 	QUICK_SCOPE_CYCLE_COUNTER(STAT_ComputeGBExample_Init); // Used to gather CPU profiling data for Unreal Insights.
 	SCOPED_DRAW_EVENT(GraphBuilder.RHICmdList, ComputeGBExample_Init); // Used to profile GPU activity and add metadata to be consumed by for example RenderDoc
 
-	FInitBoidsExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FInitBoidsExampleCS::FParameters>();
+	FBoidsGBInitExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FBoidsGBInitExampleCS::FParameters>();
 	PassParameters->numBoids = BoidConstantParameters.numBoids;
 	PassParameters->maxSpeed = BoidVariableParameters.maxSpeed;
 	PassParameters->boidsOut = BoidsPingPongBuffer.WriteScopedUAV;
@@ -72,7 +72,7 @@ void FComputeShader_Boids::InitBoidsExample_RenderThread(FRDGBuilder& GraphBuild
 
 	PassParameters->randSeed = FMath::Rand() % (INT32_MAX + 1);
 
-	TShaderMapRef<FInitBoidsExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
+	TShaderMapRef<FBoidsGBInitExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
 	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
 
 	BoidsRenderGraphPasses.init = true;
@@ -129,7 +129,7 @@ void FComputeShader_Boids::DispatchBoidsExample_RenderThread(FRDGBuilder& GraphB
 		BoidsPingPongBuffer.RegisterRW(GraphBuilder, SRVName, UAVName);
 	}
 
-	FBoidsUpdateExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FBoidsUpdateExampleCS::FParameters>();
+	FBoidsGBUpdateExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FBoidsGBUpdateExampleCS::FParameters>();
 	PassParameters->numBoids = BoidConstantParameters.numBoids;
 	PassParameters->deltaTime = DeltaTime * BoidVariableParameters.simulationSpeed;
 	PassParameters->boidsIn = BoidsPingPongBuffer.ReadScopedSRV;
@@ -148,7 +148,7 @@ void FComputeShader_Boids::DispatchBoidsExample_RenderThread(FRDGBuilder& GraphB
 	PassParameters->separationFactor = BoidVariableParameters.separationFactor;
 	PassParameters->alignmentFactor = BoidVariableParameters.alignmentFactor;
 
-	TShaderMapRef<FBoidsUpdateExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
+	TShaderMapRef<FBoidsGBUpdateExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
 	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
 	BoidsRenderGraphPasses.UpdatePass = FComputeShaderUtils::AddPass(GraphBuilder,
 		RDG_EVENT_NAME("BoidsUpdateExample"),

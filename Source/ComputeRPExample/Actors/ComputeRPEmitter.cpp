@@ -100,7 +100,7 @@ void AComputeRPEmitter::InitComputeShader_RenderThread(FRHICommandListImmediate&
 	QUICK_SCOPE_CYCLE_COUNTER(STAT_ComputeRPExample_Init); // Used to gather CPU profiling data for Unreal Insights.
 	SCOPED_DRAW_EVENT(RHICmdList, ComputeRPExample_Init); // Used to profile GPU activity and add metadata to be consumed by for example RenderDoc
 
-	FInitBoidsExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FInitBoidsExampleCS::FParameters>();
+	FBoidsRPInitExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FBoidsRPInitExampleCS::FParameters>();
 	PassParameters->numBoids = BoidConstantParameters.numBoids;
 	PassParameters->maxSpeed = BoidVariableParameters.maxSpeed;
 	PassParameters->boidsOut = BoidsPingPongBuffer.WriteScopedUAV;
@@ -111,7 +111,7 @@ void AComputeRPEmitter::InitComputeShader_RenderThread(FRHICommandListImmediate&
 
 	PassParameters->randSeed = FMath::Rand() % (INT32_MAX + 1);
 
-	TShaderMapRef<FInitBoidsExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
+	TShaderMapRef<FBoidsRPInitExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
 
 	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
 
@@ -157,7 +157,7 @@ void AComputeRPEmitter::ExecuteComputeShader_RenderThread(FRHICommandListImmedia
 	const TCHAR* UAVName = *(FString(OwnerName) + TEXT("BoidsOut_StructuredBuffer"));
 	BoidsPingPongBuffer.RegisterRW(GraphBuilder, SRVName, UAVName);
 
-	FBoidsUpdateExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FBoidsUpdateExampleCS::FParameters>();
+	FBoidsRPUpdateExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FBoidsRPUpdateExampleCS::FParameters>();
 	PassParameters->numBoids = BoidConstantParameters.numBoids;
 	PassParameters->deltaTime = LastDeltaTime * BoidVariableParameters.simulationSpeed;
 	PassParameters->boidsIn = BoidsPingPongBuffer.ReadScopedSRV;
@@ -176,7 +176,7 @@ void AComputeRPEmitter::ExecuteComputeShader_RenderThread(FRHICommandListImmedia
 	PassParameters->separationFactor = BoidVariableParameters.separationFactor;
 	PassParameters->alignmentFactor = BoidVariableParameters.alignmentFactor;
 
-	TShaderMapRef<FBoidsUpdateExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
+	TShaderMapRef<FBoidsRPUpdateExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
 	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
 	FComputeShaderUtils::AddPass(GraphBuilder,
 		RDG_EVENT_NAME("RP_BoidsUpdateExample"),

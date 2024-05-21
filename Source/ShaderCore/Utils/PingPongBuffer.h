@@ -2,28 +2,7 @@
 #include "RenderGraphUtils.h"
 #include "RenderGraphBuilder.h"
 #include "GlobalShader.h"
-
-void RegisterSRV(
-	FRDGBuilder& GraphBuilder,
-	TRefCountPtr<FRDGPooledBuffer> buffer,
-	FString name,
-	FRDGBufferRef& outRDGRef,
-	FRDGBufferSRVRef& outSRVRef)
-{
-	outRDGRef = GraphBuilder.RegisterExternalBuffer(buffer, *name);//, ERDGBufferFlags::MultiFrame);
-	outSRVRef = GraphBuilder.CreateSRV(outRDGRef);
-}
-
-void RegisterUAV(
-	FRDGBuilder& GraphBuilder,
-	TRefCountPtr<FRDGPooledBuffer> buffer,
-	FString name,
-	FRDGBufferRef& outRDGRef,
-	FRDGBufferUAVRef& outUAVRef)
-{
-	outRDGRef = GraphBuilder.RegisterExternalBuffer(buffer, *name);//, ERDGBufferFlags::MultiFrame);
-	outUAVRef = GraphBuilder.CreateUAV(outRDGRef);
-}
+#include "ComputeFunctionLibrary.h"
 
 struct FPingPongBuffer
 {
@@ -54,7 +33,7 @@ struct FPingPongBuffer
 
 	void RegisterRW(FRDGBuilder& GraphBuilder, FString readName, FString writeName)
 	{
-		RegisterSRV(GraphBuilder, ReadPooled, readName, ReadScopedRef, ReadScopedSRV);
-		RegisterUAV(GraphBuilder, WritePooled, writeName, WriteScopedRef, WriteScopedUAV);
+		UComputeFunctionLibrary::RegisterSRV(GraphBuilder, ReadPooled, readName, ReadScopedRef, ReadScopedSRV);
+		UComputeFunctionLibrary::RegisterUAV(GraphBuilder, WritePooled, writeName, WriteScopedRef, WriteScopedUAV);
 	}
 };

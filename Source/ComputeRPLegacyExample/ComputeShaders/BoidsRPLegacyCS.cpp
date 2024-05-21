@@ -116,7 +116,7 @@ void FBoidsExampleBufferParameters::UnsetParameters(FRHIBatchedShaderUnbinds& Ba
 	UnsetSRVParameter(BatchedUnbinds, boidsIn);
 }
 
-FInitBoidsLegacyExampleCS::FInitBoidsLegacyExampleCS(const ShaderMetaType::CompiledShaderInitializerType& Initializer)
+FBoidsRPInitLegacyExampleCS::FBoidsRPInitLegacyExampleCS(const ShaderMetaType::CompiledShaderInitializerType& Initializer)
 	: FGlobalShader(Initializer)
 {
 	boidsExampleUniformParameters.Bind(Initializer.ParameterMap);
@@ -125,30 +125,30 @@ FInitBoidsLegacyExampleCS::FInitBoidsLegacyExampleCS(const ShaderMetaType::Compi
 
 // ____________________________________________ Set Uniform Parameters
 
-void FInitBoidsLegacyExampleCS::SetUniformParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidConstantParameters& BoidConstantParameters, FBoidVariableParameters& BoidVariableParameters, float _deltaTime)
+void FBoidsRPInitLegacyExampleCS::SetUniformParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidConstantParameters& BoidConstantParameters, FBoidVariableParameters& BoidVariableParameters, float _deltaTime)
 {
 	boidsExampleUniformParameters.SetParameters(BatchedParameters, BoidConstantParameters, BoidVariableParameters, _deltaTime);
 }
 
 // ____________________________________________ Set Buffer Parameters
 
-void FInitBoidsLegacyExampleCS::SetBufferParameters(FRHIBatchedShaderParameters& BatchedParameters, FShaderResourceViewRHIRef readRef, FUnorderedAccessViewRHIRef writeRef)
+void FBoidsRPInitLegacyExampleCS::SetBufferParameters(FRHIBatchedShaderParameters& BatchedParameters, FShaderResourceViewRHIRef readRef, FUnorderedAccessViewRHIRef writeRef)
 {
 	boidsExampleBufferParameters.SetParameters(BatchedParameters, readRef, writeRef);
 }
 
 // ____________________________________________ Unset Buffer Parameters
 
-void FInitBoidsLegacyExampleCS::UnsetBufferParameters(FRHIBatchedShaderUnbinds& BatchedUnbinds)
+void FBoidsRPInitLegacyExampleCS::UnsetBufferParameters(FRHIBatchedShaderUnbinds& BatchedUnbinds)
 {
 	boidsExampleBufferParameters.UnsetParameters(BatchedUnbinds);
 }
 
-bool FInitBoidsLegacyExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
+bool FBoidsRPInitLegacyExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
 {
 	return true;
 }
-void FInitBoidsLegacyExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+void FBoidsRPInitLegacyExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 {
 	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 	OutEnvironment.CompilerFlags.Add(CFLAG_StandardOptimization);
@@ -158,7 +158,7 @@ void FInitBoidsLegacyExampleCS::ModifyCompilationEnvironment(const FGlobalShader
 	OutEnvironment.SetDefine(TEXT("THREADGROUPSIZE_Z"), 1);
 }
 
-FBoidsUpdateLegacyExampleCS::FBoidsUpdateLegacyExampleCS(const ShaderMetaType::CompiledShaderInitializerType& Initializer)
+FBoidsRPUpdateLegacyExampleCS::FBoidsRPUpdateLegacyExampleCS(const ShaderMetaType::CompiledShaderInitializerType& Initializer)
 	: FGlobalShader(Initializer)
 {
 	boidsExampleUniformParameters.Bind(Initializer.ParameterMap);
@@ -167,30 +167,30 @@ FBoidsUpdateLegacyExampleCS::FBoidsUpdateLegacyExampleCS(const ShaderMetaType::C
 
 // ____________________________________________ Set Uniform Parameters
 
-void FBoidsUpdateLegacyExampleCS::SetUniformParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidConstantParameters& BoidConstantParameters, FBoidVariableParameters& BoidVariableParameters, float _deltaTime)
+void FBoidsRPUpdateLegacyExampleCS::SetUniformParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidConstantParameters& BoidConstantParameters, FBoidVariableParameters& BoidVariableParameters, float _deltaTime)
 {
 	boidsExampleUniformParameters.SetParameters(BatchedParameters, BoidConstantParameters, BoidVariableParameters, _deltaTime);
 }
 
 // ____________________________________________ Set Buffer Parameters
 
-void FBoidsUpdateLegacyExampleCS::SetBufferParameters(FRHIBatchedShaderParameters& BatchedParameters, FShaderResourceViewRHIRef readRef, FUnorderedAccessViewRHIRef writeRef)
+void FBoidsRPUpdateLegacyExampleCS::SetBufferParameters(FRHIBatchedShaderParameters& BatchedParameters, FShaderResourceViewRHIRef readRef, FUnorderedAccessViewRHIRef writeRef)
 {
 	boidsExampleBufferParameters.SetParameters(BatchedParameters, readRef, writeRef);
 }
 
 // ____________________________________________ Unset Buffer Parameters
 
-void FBoidsUpdateLegacyExampleCS::UnsetBufferParameters(FRHIBatchedShaderUnbinds& BatchedUnbinds)
+void FBoidsRPUpdateLegacyExampleCS::UnsetBufferParameters(FRHIBatchedShaderUnbinds& BatchedUnbinds)
 {
 	boidsExampleBufferParameters.UnsetParameters(BatchedUnbinds);
 }
 
-bool FBoidsUpdateLegacyExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
+bool FBoidsRPUpdateLegacyExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
 {
 	return true;
 }
-void FBoidsUpdateLegacyExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+void FBoidsRPUpdateLegacyExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 {
 	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 	OutEnvironment.CompilerFlags.Add(CFLAG_StandardOptimization);

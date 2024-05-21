@@ -9,6 +9,7 @@
 #include "NiagaraDataInterfaceStructuredBuffer.generated.h"
 
 struct FNiagaraDataInterfaceGeneratedFunction;
+struct FNiagaraFunctionSignature;
 
 UCLASS(EditInlineNew, Category = "Rendering", meta = (DisplayName = "StructuredBuffer"))
 class SHADERCORE_API UNiagaraDataInterfaceStructuredBuffer : public UNiagaraDataInterface

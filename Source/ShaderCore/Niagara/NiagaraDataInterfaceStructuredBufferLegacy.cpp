@@ -113,7 +113,6 @@ void UNiagaraDataInterfaceStructuredBufferLegacy::SetShaderParameters(const FNia
 }
 
 #if WITH_EDITORONLY_DATA
-
 // this lets the niagara compiler know that it needs to recompile an effect when our hlsl file changes
 bool UNiagaraDataInterfaceStructuredBufferLegacy::AppendCompileHash(FNiagaraCompileHashVisitor* InVisitor) const
 {
@@ -148,6 +147,7 @@ bool UNiagaraDataInterfaceStructuredBufferLegacy::GetFunctionHLSL(const FNiagara
 
 	return false;
 }
+#endif
 
 // This ticks on the game thread and lets us do work to initialize the instance data.
 // If you need to do work on the gathered instance data after the simulation is done, use PerInstanceTickPostSimulate() instead. 
@@ -210,4 +210,3 @@ void UNiagaraDataInterfaceStructuredBufferLegacy::DestroyPerInstanceData(void* P
 		}
 	);
 }
-#endif

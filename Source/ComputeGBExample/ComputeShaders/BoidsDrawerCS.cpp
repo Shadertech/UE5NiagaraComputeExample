@@ -3,13 +3,13 @@
 
 #define BoidsDrawerExample_ThreadsPerGroup 32
 
-bool FBoidsDrawerExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
+bool FBoidsGBDrawerExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
 {
 	// This example shader uses wave operations, so it requires SM6.
 	return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM6);
 }
 
-inline void FBoidsDrawerExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+inline void FBoidsGBDrawerExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 {
 	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 
@@ -34,13 +34,13 @@ void FComputeShader_BoidsDrawer::DispatchBoidsDrawerExample_RenderThread(FRDGBui
 
 	// This shader shows how you can use a compute shader to write to a texture.
 	// Here we send our inputs using parameters as part of the shader parameter struct. This is an efficient way of sending in simple constants for a shader, but does not work well if you need to send larger amounts of data.
-	FBoidsDrawerExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FBoidsDrawerExampleCS::FParameters>();
+	FBoidsGBDrawerExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FBoidsGBDrawerExampleCS::FParameters>();
 	PassParameters->OutputTexture = OutputTextureUAV;
 	PassParameters->numBoids = BoidConstantParameters.numBoids;
 	PassParameters->boidsIn = BoidsPingPongBuffer.ReadScopedSRV;
 	PassParameters->textureSize = FVector2f(RenderTarget->SizeX, RenderTarget->SizeY);
 
-	TShaderMapRef<FBoidsDrawerExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
+	TShaderMapRef<FBoidsGBDrawerExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
 
 	//int32 size = BoidConstantParameters.numBoids / 2;
 	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(RenderTarget->SizeX, BoidsDrawerExample_ThreadsPerGroup), FMath::DivideAndRoundUp(RenderTarget->SizeY, BoidsDrawerExample_ThreadsPerGroup), 1);

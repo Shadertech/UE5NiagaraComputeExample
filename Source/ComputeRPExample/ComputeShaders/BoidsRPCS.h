@@ -8,11 +8,11 @@
 #include "Core/ManagedRPCSInterface.h"
 #include "RHICommandList.h"
 
-class FInitBoidsExampleCS : public FGlobalShader
+class FBoidsRPInitExampleCS : public FGlobalShader
 {
 public:
-	DECLARE_GLOBAL_SHADER(FInitBoidsExampleCS);
-	SHADER_USE_PARAMETER_STRUCT(FInitBoidsExampleCS, FGlobalShader);
+	DECLARE_GLOBAL_SHADER(FBoidsRPInitExampleCS);
+	SHADER_USE_PARAMETER_STRUCT(FBoidsRPInitExampleCS, FGlobalShader);
 
 	BEGIN_SHADER_PARAMETER_STRUCT(FParameters, )
 		SHADER_PARAMETER_RDG_BUFFER_UAV(RWStructuredBuffer<FBoidItem>, boidsOut)
@@ -32,13 +32,13 @@ public:
 
 // This will tell the engine to create the shader and where the shader entry point is.
 //                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FInitBoidsExampleCS, "/ComputeExample/CS_Boids.usf", "GenerateBoids", SF_Compute);
+IMPLEMENT_GLOBAL_SHADER(FBoidsRPInitExampleCS, "/ComputeExample/CS_Boids.usf", "GenerateBoids", SF_Compute);
 
-class FBoidsUpdateExampleCS : public FGlobalShader
+class FBoidsRPUpdateExampleCS : public FGlobalShader
 {
 public:
-	DECLARE_GLOBAL_SHADER(FBoidsUpdateExampleCS);
-	SHADER_USE_PARAMETER_STRUCT(FBoidsUpdateExampleCS, FGlobalShader);
+	DECLARE_GLOBAL_SHADER(FBoidsRPUpdateExampleCS);
+	SHADER_USE_PARAMETER_STRUCT(FBoidsRPUpdateExampleCS, FGlobalShader);
 
 	BEGIN_SHADER_PARAMETER_STRUCT(FParameters, )
 		SHADER_PARAMETER_RDG_BUFFER_SRV(StructuredBuffer<FBoidItem>, boidsIn)
@@ -68,13 +68,13 @@ public:
 
 // This will tell the engine to create the shader and where the shader entry point is.
 //                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FBoidsUpdateExampleCS, "/ComputeExample/CS_Boids.usf", "UpdateBoids", SF_Compute);
+IMPLEMENT_GLOBAL_SHADER(FBoidsRPUpdateExampleCS, "/ComputeExample/CS_Boids.usf", "UpdateBoids", SF_Compute);
 
-class FBoidsCopyBufferExampleCS : public FGlobalShader
+class FBoidsRPCopyBufferExampleCS : public FGlobalShader
 {
 public:
-	DECLARE_GLOBAL_SHADER(FBoidsCopyBufferExampleCS);
-	SHADER_USE_PARAMETER_STRUCT(FBoidsCopyBufferExampleCS, FGlobalShader);
+	DECLARE_GLOBAL_SHADER(FBoidsRPCopyBufferExampleCS);
+	SHADER_USE_PARAMETER_STRUCT(FBoidsRPCopyBufferExampleCS, FGlobalShader);
 
 	BEGIN_SHADER_PARAMETER_STRUCT(FParameters, )
 		SHADER_PARAMETER_RDG_BUFFER_SRV(StructuredBuffer<FBoidItem>, boidsIn)
@@ -89,4 +89,4 @@ public:
 
 // This will tell the engine to create the shader and where the shader entry point is.
 //                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FBoidsCopyBufferExampleCS, "/ComputeExample/CS_BoidsCopyBuffer.usf", "CopyBuffer", SF_Compute);
+IMPLEMENT_GLOBAL_SHADER(FBoidsRPCopyBufferExampleCS, "/ComputeExample/CS_BoidsCopyBuffer.usf", "CopyBuffer", SF_Compute);
