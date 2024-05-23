@@ -3,13 +3,17 @@
 
 #define BoidsDrawerExample_ThreadsPerGroup 32
 
+// This will tell the engine to create the shader and where the shader entry point is.
+//                            ShaderType            ShaderPath           Shader function name Type
+IMPLEMENT_GLOBAL_SHADER(FBoidsGBDrawerExampleCS, "/ComputeExample/CS_BoidsTexture.usf", "DrawBoids", SF_Compute);
+
 bool FBoidsGBDrawerExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
 {
 	// This example shader uses wave operations, so it requires SM6.
 	return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM6);
 }
 
-inline void FBoidsGBDrawerExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+void FBoidsGBDrawerExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 {
 	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 

@@ -1,6 +1,10 @@
 #include "BoidsDrawerVS.h"
 #include "CommonRenderResources.h"
 
+// This will tell the engine to create the shader and where the shader entry point is.
+//                            ShaderType            ShaderPath           Shader function name Type
+IMPLEMENT_GLOBAL_SHADER(FSimplePassThroughVS, "/ComputeExample/VS_BoidsTexture.usf", "MainVertexShader", SF_Vertex);
+
 void FSimpleScreenVertexBuffer::InitRHI(FRHICommandListBase& RHICmdList)
 {
 	TResourceArray<FFilterVertex, VERTEXBUFFER_ALIGNMENT> Vertices;

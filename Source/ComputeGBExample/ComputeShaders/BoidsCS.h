@@ -5,6 +5,8 @@
 #include "Utils/PingPongBuffer.h"
 #include "ComputeGBExample.h"
 #include "GlobalShader.h"
+#include "ShaderParameters.h"
+#include "ShaderParameterStruct.h"
 #include "DataDrivenShaderPlatformInfo.h"
 
 class FBoidsGBInitExampleCS : public FGlobalShader
@@ -26,12 +28,8 @@ public:
 
 public:
 	static bool ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters);
-	static inline void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment);
+	static void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment);
 };
-
-// This will tell the engine to create the shader and where the shader entry point is.
-//                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FBoidsGBInitExampleCS, "/ComputeExample/CS_Boids.usf", "GenerateBoids", SF_Compute);
 
 class FBoidsGBUpdateExampleCS : public FGlobalShader
 {
@@ -62,12 +60,8 @@ public:
 
 public:
 	static bool ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters);
-	static inline void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment);
+	static void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment);
 };
-
-// This will tell the engine to create the shader and where the shader entry point is.
-//                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FBoidsGBUpdateExampleCS, "/ComputeExample/CS_Boids.usf", "UpdateBoids", SF_Compute);
 
 class FComputeShader_Boids
 {

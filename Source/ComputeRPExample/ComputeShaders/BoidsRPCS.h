@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "Data/BoidsLib.h"
 #include "GlobalShader.h"
+#include "ShaderParameters.h"
+#include "ShaderParameterStruct.h"
 #include "DataDrivenShaderPlatformInfo.h"
 
 #include "Core/ManagedRPCSInterface.h"
@@ -27,12 +29,8 @@ public:
 
 public:
 	static bool ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters);
-	static inline void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment);
+	static void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment);
 };
-
-// This will tell the engine to create the shader and where the shader entry point is.
-//                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FBoidsRPInitExampleCS, "/ComputeExample/CS_Boids.usf", "GenerateBoids", SF_Compute);
 
 class FBoidsRPUpdateExampleCS : public FGlobalShader
 {
@@ -63,12 +61,8 @@ public:
 
 public:
 	static bool ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters);
-	static inline void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment);
+	static void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment);
 };
-
-// This will tell the engine to create the shader and where the shader entry point is.
-//                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FBoidsRPUpdateExampleCS, "/ComputeExample/CS_Boids.usf", "UpdateBoids", SF_Compute);
 
 class FBoidsRPCopyBufferExampleCS : public FGlobalShader
 {
@@ -84,9 +78,5 @@ public:
 
 public:
 	static bool ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters);
-	static inline void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment);
+	static void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment);
 };
-
-// This will tell the engine to create the shader and where the shader entry point is.
-//                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FBoidsRPCopyBufferExampleCS, "/ComputeExample/CS_BoidsCopyBuffer.usf", "CopyBuffer", SF_Compute);
