@@ -144,6 +144,10 @@ void FBoidsRPInitLegacyExampleCS::UnsetBufferParameters(FRHIBatchedShaderUnbinds
 	boidsExampleBufferParameters.UnsetParameters(BatchedUnbinds);
 }
 
+// This will tell the engine to create the shader and where the shader entry point is.
+//                            ShaderType            ShaderPath           Shader function name Type
+IMPLEMENT_GLOBAL_SHADER(FBoidsRPInitLegacyExampleCS, "/ComputeExample/CS_Boids.usf", "GenerateBoids", SF_Compute);
+
 bool FBoidsRPInitLegacyExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
 {
 	return true;
@@ -185,6 +189,10 @@ void FBoidsRPUpdateLegacyExampleCS::UnsetBufferParameters(FRHIBatchedShaderUnbin
 {
 	boidsExampleBufferParameters.UnsetParameters(BatchedUnbinds);
 }
+
+// This will tell the engine to create the shader and where the shader entry point is.
+//                            ShaderType            ShaderPath           Shader function name Type
+IMPLEMENT_GLOBAL_SHADER(FBoidsRPUpdateLegacyExampleCS, "/ComputeExample/CS_Boids.usf", "UpdateBoids", SF_Compute);
 
 bool FBoidsRPUpdateLegacyExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
 {

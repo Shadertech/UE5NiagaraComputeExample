@@ -95,10 +95,6 @@ private:
 	LAYOUT_FIELD(FBoidsExampleBufferParameters, boidsExampleBufferParameters);
 };
 
-// This will tell the engine to create the shader and where the shader entry point is.
-//                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FBoidsRPInitLegacyExampleCS, "/ComputeExample/CS_Boids.usf", "GenerateBoids", SF_Compute);
-
 class FBoidsRPUpdateLegacyExampleCS : public FGlobalShader
 {
 	DECLARE_SHADER_TYPE(FBoidsRPUpdateLegacyExampleCS, Global);
@@ -118,7 +114,3 @@ private:
 	LAYOUT_FIELD(FBoidsExampleUniformParameters, boidsExampleUniformParameters);
 	LAYOUT_FIELD(FBoidsExampleBufferParameters, boidsExampleBufferParameters);
 };
-
-// This will tell the engine to create the shader and where the shader entry point is.
-//                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FBoidsRPUpdateLegacyExampleCS, "/ComputeExample/CS_Boids.usf", "UpdateBoids", SF_Compute);

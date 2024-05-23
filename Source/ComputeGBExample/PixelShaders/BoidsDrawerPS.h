@@ -31,8 +31,6 @@ public:
 	static bool ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters);
 };
 
-IMPLEMENT_GLOBAL_SHADER(FPixelShaderExamplePS, "/ComputeExample/PS_BoidsTexture.usf", "MainPixelShader", SF_Pixel);
-
 // Since we have to allocate the params via the RenderGraph, it's practical to use a wrapper struct like this for both VS and PS inputs.
 // We also have to include binding slots in our parameter struct, as this is what we will be rendering to, and this wrapper struct is perfect for that!
 BEGIN_SHADER_PARAMETER_STRUCT(FBoidsDrawExampleParameters, )

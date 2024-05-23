@@ -6,6 +6,7 @@
 #include "NiagaraShared.h"
 #include "NiagaraDataInterface.h"
 #include "RenderGraphFwd.h"
+#include "RenderGraphResources.h"
 #include "NiagaraDataInterfaceStructuredBuffer.generated.h"
 
 struct FNiagaraDataInterfaceGeneratedFunction;

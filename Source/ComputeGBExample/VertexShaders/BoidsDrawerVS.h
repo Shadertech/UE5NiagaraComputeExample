@@ -4,6 +4,7 @@
 #include "ComputeGBExample.h"
 #include "GlobalShader.h"
 #include "DataDrivenShaderPlatformInfo.h"
+#include "ShaderParameterStruct.h"
 
 /************************************************************************/
 /* Simple static vertex buffer.                                         */
@@ -14,7 +15,6 @@ public:
 	/** Initialize the RHI for this rendering resource */
 	virtual void InitRHI(FRHICommandListBase& RHICmdList) override;
 };
-TGlobalResource<FSimpleScreenVertexBuffer> GSimpleScreenVertexBuffer;
 
 /************************************************************************/
 /* A simple passthrough vertexshader that we will use.                  */
@@ -32,7 +32,3 @@ public:
 public:
 	static bool ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters);
 };
-
-// This will tell the engine to create the shader and where the shader entry point is.
-//                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FSimplePassThroughVS, "/ComputeExample/VS_BoidsTexture.usf", "MainVertexShader", SF_Vertex);
