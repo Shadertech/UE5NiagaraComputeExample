@@ -9,7 +9,7 @@ bool FBoidsGBInitExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutat
 	return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM6);
 }
 
-inline void FBoidsGBInitExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+void FBoidsGBInitExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 {
 	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 
@@ -24,7 +24,7 @@ bool FBoidsGBUpdateExampleCS::ShouldCompilePermutation(const FGlobalShaderPermut
 	return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM6);
 }
 
-inline void FBoidsGBUpdateExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+void FBoidsGBUpdateExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 {
 	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 

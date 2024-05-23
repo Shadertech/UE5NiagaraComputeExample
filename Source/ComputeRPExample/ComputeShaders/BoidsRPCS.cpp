@@ -12,7 +12,7 @@ bool FBoidsRPInitExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutat
 	return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM6);
 }
 
-inline void FBoidsRPInitExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+void FBoidsRPInitExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 {
 	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 
@@ -27,7 +27,7 @@ bool FBoidsRPUpdateExampleCS::ShouldCompilePermutation(const FGlobalShaderPermut
 	return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM6);
 }
 
-inline void FBoidsRPUpdateExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+void FBoidsRPUpdateExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 {
 	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 
@@ -42,7 +42,7 @@ bool FBoidsRPCopyBufferExampleCS::ShouldCompilePermutation(const FGlobalShaderPe
 	return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM6);
 }
 
-inline void FBoidsRPCopyBufferExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+void FBoidsRPCopyBufferExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 {
 	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 

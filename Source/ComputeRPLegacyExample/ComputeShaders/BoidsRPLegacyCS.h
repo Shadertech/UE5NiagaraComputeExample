@@ -4,6 +4,7 @@
 #include "Data/BoidsLib.h"
 #include "GlobalShader.h"
 #include "ShaderParameters.h"
+#include "ShaderParameterStruct.h"
 #include "DataDrivenShaderPlatformInfo.h"
 
 #include "Core/ManagedRPCSInterface.h"

@@ -9,7 +9,7 @@ bool FBoidsGBDrawerExampleCS::ShouldCompilePermutation(const FGlobalShaderPermut
 	return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM6);
 }
 
-inline void FBoidsGBDrawerExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+void FBoidsGBDrawerExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 {
 	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 
