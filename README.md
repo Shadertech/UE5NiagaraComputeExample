@@ -1,10 +1,11 @@
 # Niagara Compute Shader Example
-
+**Overview**:
 This project is an Unreal Engine 5 plugin that demonstrates compute shader integration with the Niagara particle system.
 I hope that this repo is a good place to start playing with UE5 graph builder.
+
 Temaran has produced an awesome resource to learn compute shaders and I suggest checking it out if you havent already [UnrealEngineShaderPluginDemo](https://github.com/Temaran/UnrealEngineShaderPluginDemo)
 
-![Screenshot 2024-05-24 193530](https://github.com/Shadertech/UE5NiagaraComputeExample/assets/1611567/f05d0423-7071-45e9-abe5-9fd09f2444fa)
+![boidsVFX](https://github.com/Shadertech/UE5NiagaraComputeExample/assets/1611567/ddcfbcdf-dc87-4623-8435-26ac3993bab0)
 
 ## Modules
 
@@ -56,9 +57,12 @@ To integrate this plugin into your Unreal Engine project:
 
 1. Clone the repository to your local machine.
 2. Copy the plugin folder into the `Plugins` directory of your Unreal Engine project.
-3. Rebuild project files from your  .uproject
+3. Rebuild project files from your .uproject
 3. Enable the plugin within your project settings via the Plugins menu.
-4. Configure boids parameters through Compute Example Settings inside Project Settings. You can play with the values there even in runtime.
+4. Open Maps/M_TestLab
+5. Configure boids parameters through Compute Example Settings inside Project Settings. Please assign the niagara systems as follows.
+![boidsSettings](https://github.com/Shadertech/UE5NiagaraComputeExample/assets/1611567/45ec09b0-277f-40cd-9306-2d41c6b83065)
+6. Enjoy. You can play with the compute example settings even in runtime. :)
 
 ## Contributing
 
