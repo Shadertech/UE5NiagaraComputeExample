@@ -4,7 +4,7 @@ This project is an Unreal Engine 5 plugin that demonstrates compute shader integ
 I hope that this repo is a good place to start playing with UE5 graph builder.
 Temaran has produced an awesome resource to learn compute shaders and I suggest checking it out if you havent already [UnrealEngineShaderPluginDemo](https://github.com/Temaran/UnrealEngineShaderPluginDemo)
 
-![UE5BoidsCompute](https://github.com/Shadertech/UE5NiagaraComputeExample/assets/1611567/e3737ae5-c478-4f94-8c6e-9c6c43060bdd)
+![Screenshot 2024-05-24 193530](https://github.com/Shadertech/UE5NiagaraComputeExample/assets/1611567/f05d0423-7071-45e9-abe5-9fd09f2444fa)
 
 ## Modules
 
