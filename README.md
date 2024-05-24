@@ -61,8 +61,10 @@ To integrate this plugin into your Unreal Engine project:
 3. Enable the plugin within your project settings via the Plugins menu.
 4. Open Maps/M_TestLab
 5. Configure boids parameters through Compute Example Settings inside Project Settings. Please assign the niagara systems as follows.
+
 ![boidsSettings](https://github.com/Shadertech/UE5NiagaraComputeExample/assets/1611567/45ec09b0-277f-40cd-9306-2d41c6b83065)
-6. Enjoy. You can play with the compute example settings even in runtime. :)
+
+7. Enjoy. You can play with the compute example settings even in runtime. :)
 
 ## Contributing
 
