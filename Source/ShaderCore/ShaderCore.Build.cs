@@ -27,6 +27,7 @@ public class ShaderCore : ModuleRules
 			{
 				"Core",
                 "RenderCore",
+                "DeveloperSettings"
             }
 			);
 			

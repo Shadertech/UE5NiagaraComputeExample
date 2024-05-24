@@ -31,7 +31,7 @@ void FComputeShader_BoidsDrawer::InitBoidsDrawerExample_RenderThread(FRDGBuilder
 	//FRDGTextureRef OutputTexture = RDGBuilder.CreateTexture(ComputeShaderOutputDesc, TEXT("ShaderPlugin_ComputeShaderOutput"), ERDGTextureFlags::None);
 }
 
-void FComputeShader_BoidsDrawer::DispatchBoidsDrawerExample_RenderThread(FRDGBuilder& GraphBuilder, const FBoidConstantParameters& BoidConstantParameters, FPingPongBuffer& BoidsPingPongBuffer, FRDGTextureUAVRef OutputTextureUAV, UTextureRenderTarget2D* RenderTarget)
+void FComputeShader_BoidsDrawer::DispatchBoidsDrawerExample_RenderThread(FRDGBuilder& GraphBuilder, const FBoidCurrentParameters& BoidCurrentParameters, FPingPongBuffer& BoidsPingPongBuffer, FRDGTextureUAVRef OutputTextureUAV, UTextureRenderTarget2D* RenderTarget)
 {
 	QUICK_SCOPE_CYCLE_COUNTER(STAT_ComputeGBExample_Dispatch);
 	SCOPED_DRAW_EVENT(GraphBuilder.RHICmdList, ComputeGBExample_Compute); // Used to profile GPU activity and add metadata to be consumed by for example RenderDoc
@@ -40,7 +40,7 @@ void FComputeShader_BoidsDrawer::DispatchBoidsDrawerExample_RenderThread(FRDGBui
 	// Here we send our inputs using parameters as part of the shader parameter struct. This is an efficient way of sending in simple constants for a shader, but does not work well if you need to send larger amounts of data.
 	FBoidsGBDrawerExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FBoidsGBDrawerExampleCS::FParameters>();
 	PassParameters->OutputTexture = OutputTextureUAV;
-	PassParameters->numBoids = BoidConstantParameters.numBoids;
+	PassParameters->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
 	PassParameters->boidsIn = BoidsPingPongBuffer.ReadScopedSRV;
 	PassParameters->textureSize = FVector2f(RenderTarget->SizeX, RenderTarget->SizeY);
 

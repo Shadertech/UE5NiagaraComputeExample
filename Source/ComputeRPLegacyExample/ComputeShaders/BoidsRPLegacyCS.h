@@ -18,7 +18,7 @@ class FBoidsExampleUniformParameters
 public:
 	void Bind(const FShaderParameterMap& ParameterMap);
 
-	void SetParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidConstantParameters& BoidConstantParameters, FBoidVariableParameters& BoidVariableParameters, float _deltaTime);
+	void SetParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidCurrentParameters& BoidCurrentParameters, float _deltaTime);
 
 	friend FArchive& operator<<(FArchive& Ar, FBoidsExampleUniformParameters& P)
 	{
@@ -83,7 +83,7 @@ public:
 
 	explicit FBoidsRPInitLegacyExampleCS(const ShaderMetaType::CompiledShaderInitializerType& Initializer);
 
-	void SetUniformParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidConstantParameters& BoidConstantParameters, FBoidVariableParameters& BoidVariableParameters, float _deltaTime);
+	void SetUniformParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidCurrentParameters& BoidCurrentParameters, float _deltaTime);
 	void SetBufferParameters(FRHIBatchedShaderParameters& BatchedParameters, FShaderResourceViewRHIRef readRef, FUnorderedAccessViewRHIRef writeRef);
 	void UnsetBufferParameters(FRHIBatchedShaderUnbinds& BatchedUnbinds);
 
@@ -103,7 +103,7 @@ public:
 	FBoidsRPUpdateLegacyExampleCS() {}
 	explicit FBoidsRPUpdateLegacyExampleCS(const ShaderMetaType::CompiledShaderInitializerType& Initializer);
 
-	void SetUniformParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidConstantParameters& BoidConstantParameters, FBoidVariableParameters& BoidVariableParameters, float _deltaTime);
+	void SetUniformParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidCurrentParameters& BoidCurrentParameters, float _deltaTime);
 	void SetBufferParameters(FRHIBatchedShaderParameters& BatchedParameters, FShaderResourceViewRHIRef readRef, FUnorderedAccessViewRHIRef writeRef);
 	void UnsetBufferParameters(FRHIBatchedShaderUnbinds& BatchedUnbinds);
 

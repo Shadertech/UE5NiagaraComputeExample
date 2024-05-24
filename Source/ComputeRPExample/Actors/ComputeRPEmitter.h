@@ -27,26 +27,23 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void BeginDestroy() override;
+	virtual void DisposeComputeShader_GameThread() override;
 
 protected:
-	UFUNCTION(BlueprintCallable, Category = "Niagara")
-	bool SetNiagaraConstantParameters();
-	UFUNCTION(BlueprintCallable, Category = "Niagara")
-	void SetNiagaraVariableParameters();
+	bool SetConstantParameters();
+	bool SetDynamicParameters();
 
 public:
 	// Managed Compute Shader Interface 
-	virtual void InitComputeShader() override;
+	virtual void InitComputeShader_GameThread() override;
 	virtual void InitComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList) override;
 
-	virtual void ExecuteComputeShader(float DeltaTime) override;
+	virtual void ExecuteComputeShader_GameThread(float DeltaTime) override;
 	virtual void ExecuteComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList) override;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Parameters")
-	FBoidConstantParameters BoidConstantParameters;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Parameters")
-	FBoidVariableParameters BoidVariableParameters;
+	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Boid Parameters")
+	FBoidCurrentParameters BoidCurrentParameters;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boids")
 	TArray<FBoidItem> BoidsArray;

@@ -87,7 +87,7 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct SHADERCORE_API FBoidVariableParameters
+struct SHADERCORE_API FBoidDynamicParameters
 {
 	GENERATED_BODY()
 
@@ -109,8 +109,17 @@ public:
 	float minSpeed() const { return maxSpeed * 0.75f; }
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Variables")
 	float meshScale = 0.02f;
-	float worldScale = 1.0f;
+};
 
+USTRUCT(BlueprintType)
+struct SHADERCORE_API FBoidCurrentParameters
+{
+	GENERATED_BODY()
+
+public:
+	FBoidConstantParameters ConstantParameters;
+	FBoidDynamicParameters DynamicParameters;
+	float worldScale = 1.0f;
 	float boundsRadius;
 	FMatrix44f transformMatrix;
 	FMatrix44f inverseTransformMatrix;

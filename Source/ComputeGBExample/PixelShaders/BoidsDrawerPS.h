@@ -43,5 +43,5 @@ class FPixelShader_BoidsDrawer
 {
 public:
 	static void InitDrawToRenderTargetExample_RenderThread(FRDGBuilder& GraphBuilder, const TArray<FBoidItem>& BoidsArray, UTextureRenderTarget2D* RenderTarget, FRDGTextureRef& RenderTargetTexture);
-	static void DrawToRenderTargetExample_RenderThread(FRDGBuilder& GraphBuilder, const FBoidConstantParameters& BoidConstantParameters, FRDGTextureSRVRef OutputTexture, UTextureRenderTarget2D* RenderTarget, FRDGTextureRef& RenderTargetTexture);
+	static void DrawToRenderTargetExample_RenderThread(FRDGBuilder& GraphBuilder, FRDGTextureSRVRef OutputTexture, UTextureRenderTarget2D* RenderTarget, FRDGTextureRef& RenderTargetTexture);
 };

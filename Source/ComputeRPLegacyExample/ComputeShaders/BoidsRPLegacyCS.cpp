@@ -25,16 +25,16 @@ void FBoidsExampleUniformParameters::Bind(const FShaderParameterMap& ParameterMa
 	alignmentFactor.Bind(ParameterMap, TEXT("alignmentFactor"));
 }
 
-void FBoidsExampleUniformParameters::SetParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidConstantParameters& BoidConstantParameters, FBoidVariableParameters& BoidVariableParameters, float _deltaTime)
+void FBoidsExampleUniformParameters::SetParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidCurrentParameters& BoidCurrentParameters, float _deltaTime)
 {
 	if (numBoids.IsBound())
 	{
-		SetShaderValue(BatchedParameters, numBoids, BoidConstantParameters.numBoids);
+		SetShaderValue(BatchedParameters, numBoids, BoidCurrentParameters.ConstantParameters.numBoids);
 	}
 
 	if (maxSpeed.IsBound())
 	{
-		SetShaderValue(BatchedParameters, maxSpeed, BoidVariableParameters.maxSpeed);
+		SetShaderValue(BatchedParameters, maxSpeed, BoidCurrentParameters.DynamicParameters.maxSpeed);
 	}
 
 	if (randSeed.IsBound())
@@ -44,57 +44,57 @@ void FBoidsExampleUniformParameters::SetParameters(FRHIBatchedShaderParameters& 
 
 	if (boundsMatrix.IsBound())
 	{
-		SetShaderValue(BatchedParameters, boundsMatrix, BoidVariableParameters.transformMatrix);
+		SetShaderValue(BatchedParameters, boundsMatrix, BoidCurrentParameters.transformMatrix);
 	}
 
 	if (boundsInverseMatrix.IsBound())
 	{
-		SetShaderValue(BatchedParameters, boundsInverseMatrix, BoidVariableParameters.inverseTransformMatrix);
+		SetShaderValue(BatchedParameters, boundsInverseMatrix, BoidCurrentParameters.inverseTransformMatrix);
 	}
 
 	if (boundsRadius.IsBound())
 	{
-		SetShaderValue(BatchedParameters, boundsRadius, BoidVariableParameters.boundsRadius);
+		SetShaderValue(BatchedParameters, boundsRadius, BoidCurrentParameters.boundsRadius);
 	}
 
 	if (deltaTime.IsBound())
 	{
-		SetShaderValue(BatchedParameters, deltaTime, _deltaTime * BoidVariableParameters.simulationSpeed);
+		SetShaderValue(BatchedParameters, deltaTime, _deltaTime * BoidCurrentParameters.DynamicParameters.simulationSpeed);
 	}
 
 	if (minSpeed.IsBound())
 	{
-		SetShaderValue(BatchedParameters, minSpeed, BoidVariableParameters.minSpeed());
+		SetShaderValue(BatchedParameters, minSpeed, BoidCurrentParameters.DynamicParameters.minSpeed());
 	}
 
 	if (turnSpeed.IsBound())
 	{
-		SetShaderValue(BatchedParameters, turnSpeed, BoidVariableParameters.turnSpeed());
+		SetShaderValue(BatchedParameters, turnSpeed, BoidCurrentParameters.DynamicParameters.turnSpeed());
 	}
 
 	if (minDistance.IsBound())
 	{
-		SetShaderValue(BatchedParameters, minDistance, BoidVariableParameters.minDistance);
+		SetShaderValue(BatchedParameters, minDistance, BoidCurrentParameters.DynamicParameters.minDistance);
 	}
 
 	if (minDistanceSq.IsBound())
 	{
-		SetShaderValue(BatchedParameters, minDistanceSq, BoidVariableParameters.minDistanceSq());
+		SetShaderValue(BatchedParameters, minDistanceSq, BoidCurrentParameters.DynamicParameters.minDistanceSq());
 	}
 
 	if (cohesionFactor.IsBound())
 	{
-		SetShaderValue(BatchedParameters, cohesionFactor, BoidVariableParameters.cohesionFactor);
+		SetShaderValue(BatchedParameters, cohesionFactor, BoidCurrentParameters.DynamicParameters.cohesionFactor);
 	}
 
 	if (separationFactor.IsBound())
 	{
-		SetShaderValue(BatchedParameters, separationFactor, BoidVariableParameters.separationFactor);
+		SetShaderValue(BatchedParameters, separationFactor, BoidCurrentParameters.DynamicParameters.separationFactor);
 	}
 
 	if (alignmentFactor.IsBound())
 	{
-		SetShaderValue(BatchedParameters, alignmentFactor, BoidVariableParameters.alignmentFactor);
+		SetShaderValue(BatchedParameters, alignmentFactor, BoidCurrentParameters.DynamicParameters.alignmentFactor);
 	}
 }
 
@@ -125,9 +125,9 @@ FBoidsRPInitLegacyExampleCS::FBoidsRPInitLegacyExampleCS(const ShaderMetaType::C
 
 // ____________________________________________ Set Uniform Parameters
 
-void FBoidsRPInitLegacyExampleCS::SetUniformParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidConstantParameters& BoidConstantParameters, FBoidVariableParameters& BoidVariableParameters, float _deltaTime)
+void FBoidsRPInitLegacyExampleCS::SetUniformParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidCurrentParameters& BoidCurrentParameters, float _deltaTime)
 {
-	boidsExampleUniformParameters.SetParameters(BatchedParameters, BoidConstantParameters, BoidVariableParameters, _deltaTime);
+	boidsExampleUniformParameters.SetParameters(BatchedParameters, BoidCurrentParameters, _deltaTime);
 }
 
 // ____________________________________________ Set Buffer Parameters
@@ -171,9 +171,9 @@ FBoidsRPUpdateLegacyExampleCS::FBoidsRPUpdateLegacyExampleCS(const ShaderMetaTyp
 
 // ____________________________________________ Set Uniform Parameters
 
-void FBoidsRPUpdateLegacyExampleCS::SetUniformParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidConstantParameters& BoidConstantParameters, FBoidVariableParameters& BoidVariableParameters, float _deltaTime)
+void FBoidsRPUpdateLegacyExampleCS::SetUniformParameters(FRHIBatchedShaderParameters& BatchedParameters, FBoidCurrentParameters& BoidCurrentParameters, float _deltaTime)
 {
-	boidsExampleUniformParameters.SetParameters(BatchedParameters, BoidConstantParameters, BoidVariableParameters, _deltaTime);
+	boidsExampleUniformParameters.SetParameters(BatchedParameters, BoidCurrentParameters, _deltaTime);
 }
 
 // ____________________________________________ Set Buffer Parameters

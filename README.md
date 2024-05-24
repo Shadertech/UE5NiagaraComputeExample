@@ -46,7 +46,7 @@ Temaran has produced an awesome resource to learn compute shaders and I suggest 
 
 ## Prerequisites
 
-- Unreal Engine 5.3.2.
+- Unreal Engine 5.4.1
 - C++ Project for generating binaries and intermediate folders
 - Basic understanding of Unreal Engine and its plugin system.
 
@@ -58,6 +58,7 @@ To integrate this plugin into your Unreal Engine project:
 2. Copy the plugin folder into the `Plugins` directory of your Unreal Engine project.
 3. Rebuild project files from your  .uproject
 3. Enable the plugin within your project settings via the Plugins menu.
+4. Configure boids parameters through Compute Example Settings inside Project Settings. You can play with the values there even in runtime.
 
 ## Contributing
 

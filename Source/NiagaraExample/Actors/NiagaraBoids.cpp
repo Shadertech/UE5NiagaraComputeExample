@@ -3,6 +3,7 @@
 #include "SceneRendering.h"
 #include "ScenePrivate.h"
 #include "NiagaraDataInterfaceArrayFloat.h"
+#include "Settings/ComputeExampleSettings.h"
 
 DEFINE_LOG_CATEGORY(LogNiagaraBoids);
 
@@ -20,13 +21,19 @@ void ANiagaraBoids::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetNiagaraConstantParameters();
+	const UComputeExampleSettings* computeExampleSettings = UComputeExampleSettings::GetComputeExampleSettings();
+	Niagara->SetAsset(computeExampleSettings->BoidsVFX.LoadSynchronous());
+
+	if (SetConstantParameters() && SetDynamicParameters())
+	{
+		Niagara->Activate(true);
+	}
 }
 
 void ANiagaraBoids::Tick(float DeltaTime)
 {
-	SetNiagaraConstantParameters();
-	SetNiagaraVariableParameters();
+	SetConstantParameters();
+	SetDynamicParameters();
 
 	Super::Tick(DeltaTime);
 }
@@ -38,23 +45,29 @@ void ANiagaraBoids::BeginDestroy()
 	Super::BeginDestroy();
 }
 
-bool ANiagaraBoids::SetNiagaraConstantParameters()
+bool ANiagaraBoids::SetConstantParameters()
 {
 	if (Niagara == nullptr || Niagara->GetAsset() == nullptr)
 	{
 		return false;
 	}
 
-	Niagara->SetIntParameter("numBoids", BoidConstantParameters.numBoids);
+	const UComputeExampleSettings* computeExampleSettings = UComputeExampleSettings::GetComputeExampleSettings();
+	BoidCurrentParameters.ConstantParameters = computeExampleSettings->BoidConstantParameters;
+
+	Niagara->SetIntParameter("numBoids", BoidCurrentParameters.ConstantParameters.numBoids);
 	return true;
 }
 
-void ANiagaraBoids::SetNiagaraVariableParameters()
+bool ANiagaraBoids::SetDynamicParameters()
 {
 	if (Niagara == nullptr || Niagara->GetAsset() == nullptr)
 	{
-		return;
+		return false;
 	}
+
+	const UComputeExampleSettings* computeExampleSettings = UComputeExampleSettings::GetComputeExampleSettings();
+	BoidCurrentParameters.DynamicParameters = computeExampleSettings->BoidDynamicParameters;
 
 	BoundsMatrix = FMatrix::Identity.ConcatTranslation(GetActorLocation());
 
@@ -68,6 +81,17 @@ void ANiagaraBoids::SetNiagaraVariableParameters()
 
 	Niagara->SetFloatParameter("boundsRadius", BoundsConstantParameters.Radius);
 
-	Niagara->SetFloatParameter("meshScale", BoidVariableParameters.meshScale);
-	Niagara->SetFloatParameter("worldScale", BoidVariableParameters.worldScale);
+	Niagara->SetFloatParameter("meshScale", BoidCurrentParameters.DynamicParameters.meshScale);
+	Niagara->SetFloatParameter("worldScale", BoidCurrentParameters.worldScale);
+
+	Niagara->SetFloatParameter("simulationSpeed", BoidCurrentParameters.DynamicParameters.simulationSpeed);
+	Niagara->SetFloatParameter("minSpeed", BoidCurrentParameters.DynamicParameters.minSpeed());
+	Niagara->SetFloatParameter("maxSpeed", BoidCurrentParameters.DynamicParameters.maxSpeed);
+	Niagara->SetFloatParameter("turnSpeed", BoidCurrentParameters.DynamicParameters.turnSpeed());
+	Niagara->SetFloatParameter("minDistance", BoidCurrentParameters.DynamicParameters.minDistance);
+	Niagara->SetFloatParameter("minDistanceSq", BoidCurrentParameters.DynamicParameters.minDistanceSq());
+	Niagara->SetFloatParameter("cohesionFactor", BoidCurrentParameters.DynamicParameters.cohesionFactor);
+	Niagara->SetFloatParameter("separationFactor", BoidCurrentParameters.DynamicParameters.separationFactor);
+	Niagara->SetFloatParameter("alignmentFactor", BoidCurrentParameters.DynamicParameters.alignmentFactor);
+	return true;
 }

@@ -93,7 +93,7 @@ void ARPCSManager::DispatchComputeShaders(float DeltaTime)
 		// Init Compute Shaders
 		for (IManagedRPCSInterface* ManagedRPCS : ManagedCSs)
 		{
-			ManagedRPCS->InitComputeShader();
+			ManagedRPCS->InitComputeShader_GameThread();
 		}
 
 		ENQUEUE_RENDER_COMMAND(FRPCSRunner)(
@@ -119,7 +119,7 @@ void ARPCSManager::DispatchComputeShaders(float DeltaTime)
 
 		for (IManagedRPCSInterface* ManagedRPCS : ManagedCSs)
 		{
-			ManagedRPCS->ExecuteComputeShader(DeltaTime);
+			ManagedRPCS->ExecuteComputeShader_GameThread(DeltaTime);
 		}
 
 		ENQUEUE_RENDER_COMMAND(FRPCSRunner)(

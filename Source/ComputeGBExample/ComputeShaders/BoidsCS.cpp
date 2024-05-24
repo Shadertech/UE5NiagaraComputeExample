@@ -45,7 +45,7 @@ void FBoidsGBUpdateExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPe
 /* These functions schedule our Compute Shader work from the CPU!							  */
 /**********************************************************************************************/
 
-void FComputeShader_Boids::InitBoidsExample_RenderThread(FRDGBuilder& GraphBuilder, const TCHAR* OwnerName, const TArray<FBoidItem>& BoidsArray, const FBoidConstantParameters& BoidConstantParameters, const FBoidVariableParameters& BoidVariableParameters, FBoidsRenderGraphPasses& BoidsRenderGraphPasses, FPingPongBuffer& BoidsPingPongBuffer)
+void FComputeShader_Boids::InitBoidsExample_RenderThread(FRDGBuilder& GraphBuilder, const TCHAR* OwnerName, const TArray<FBoidItem>& BoidsArray,  const FBoidCurrentParameters& BoidCurrentParameters, FBoidsRenderGraphPasses& BoidsRenderGraphPasses, FPingPongBuffer& BoidsPingPongBuffer)
 {
 	const TCHAR* ReadBufferName = *(FString(OwnerName) + TEXT("BoidsInBuffer"));
 	const TCHAR* WriteBufferName = *(FString(OwnerName) + TEXT("BoidsOutBuffer"));
@@ -70,18 +70,18 @@ void FComputeShader_Boids::InitBoidsExample_RenderThread(FRDGBuilder& GraphBuild
 	SCOPED_DRAW_EVENT(GraphBuilder.RHICmdList, ComputeGBExample_Init); // Used to profile GPU activity and add metadata to be consumed by for example RenderDoc
 
 	FBoidsGBInitExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FBoidsGBInitExampleCS::FParameters>();
-	PassParameters->numBoids = BoidConstantParameters.numBoids;
-	PassParameters->maxSpeed = BoidVariableParameters.maxSpeed;
+	PassParameters->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
+	PassParameters->maxSpeed = BoidCurrentParameters.DynamicParameters.maxSpeed;
 	PassParameters->boidsOut = BoidsPingPongBuffer.WriteScopedUAV;
 	
-	PassParameters->boundsInverseMatrix = BoidVariableParameters.inverseTransformMatrix;
-	PassParameters->boundsMatrix = BoidVariableParameters.transformMatrix;
-	PassParameters->boundsRadius = BoidVariableParameters.boundsRadius;
+	PassParameters->boundsInverseMatrix = BoidCurrentParameters.inverseTransformMatrix;
+	PassParameters->boundsMatrix = BoidCurrentParameters.transformMatrix;
+	PassParameters->boundsRadius = BoidCurrentParameters.boundsRadius;
 
 	PassParameters->randSeed = FMath::Rand() % (INT32_MAX + 1);
 
 	TShaderMapRef<FBoidsGBInitExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
-	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
+	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidCurrentParameters.ConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
 
 	BoidsRenderGraphPasses.init = true;
 	BoidsRenderGraphPasses.InitPass = FComputeShaderUtils::AddPass(GraphBuilder,
@@ -91,7 +91,8 @@ void FComputeShader_Boids::InitBoidsExample_RenderThread(FRDGBuilder& GraphBuild
 		PassParameters,
 		GroupCounts);
 
-	BoidsPingPongBuffer.PingPong(GraphBuilder);
+	GraphBuilder.QueueBufferExtraction(BoidsPingPongBuffer.WriteScopedRef, &BoidsPingPongBuffer.ReadPooled);
+	//BoidsPingPongBuffer.PingPong(GraphBuilder);
 }
 
 void FComputeShader_Boids::GetBoidsExample_RenderThread(FRDGBuilder& GraphBuilder, FBoidsGPUDispatches& BoidsGPUDispatches)
@@ -122,7 +123,7 @@ void FComputeShader_Boids::GetBoidsExample_RenderThread(FRDGBuilder& GraphBuilde
 	}
 }
 
-void FComputeShader_Boids::DispatchBoidsExample_RenderThread(FRDGBuilder& GraphBuilder, const TCHAR* OwnerName, const FBoidConstantParameters& BoidConstantParameters, const FBoidVariableParameters& BoidVariableParameters, FBoidsRenderGraphPasses& BoidsRenderGraphPasses, FPingPongBuffer& BoidsPingPongBuffer, float DeltaTime)
+void FComputeShader_Boids::DispatchBoidsExample_RenderThread(FRDGBuilder& GraphBuilder, const TCHAR* OwnerName,  const FBoidCurrentParameters& BoidCurrentParameters, FBoidsRenderGraphPasses& BoidsRenderGraphPasses, FPingPongBuffer& BoidsPingPongBuffer, float DeltaTime)
 {
 	QUICK_SCOPE_CYCLE_COUNTER(STAT_ComputeGBExample_Dispatch); // Used to gather CPU profiling data for Unreal Insights.
 	SCOPED_DRAW_EVENT(GraphBuilder.RHICmdList, ComputeGBExample_Compute); // Used to profile GPU activity and add metadata to be consumed by for example RenderDoc
@@ -138,26 +139,26 @@ void FComputeShader_Boids::DispatchBoidsExample_RenderThread(FRDGBuilder& GraphB
 	}
 
 	FBoidsGBUpdateExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FBoidsGBUpdateExampleCS::FParameters>();
-	PassParameters->numBoids = BoidConstantParameters.numBoids;
-	PassParameters->deltaTime = DeltaTime * BoidVariableParameters.simulationSpeed;
+	PassParameters->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
+	PassParameters->deltaTime = DeltaTime * BoidCurrentParameters.DynamicParameters.simulationSpeed;
 	PassParameters->boidsIn = BoidsPingPongBuffer.ReadScopedSRV;
 	PassParameters->boidsOut = BoidsPingPongBuffer.WriteScopedUAV;
 
-	PassParameters->boundsInverseMatrix = BoidVariableParameters.inverseTransformMatrix;
-	PassParameters->boundsMatrix = BoidVariableParameters.transformMatrix;
-	PassParameters->boundsRadius = BoidVariableParameters.boundsRadius;
+	PassParameters->boundsInverseMatrix = BoidCurrentParameters.inverseTransformMatrix;
+	PassParameters->boundsMatrix = BoidCurrentParameters.transformMatrix;
+	PassParameters->boundsRadius = BoidCurrentParameters.boundsRadius;
 
-	PassParameters->minSpeed = BoidVariableParameters.minSpeed();
-	PassParameters->maxSpeed = BoidVariableParameters.maxSpeed;
-	PassParameters->turnSpeed = BoidVariableParameters.turnSpeed();
-	PassParameters->minDistance = BoidVariableParameters.minDistance;
-	PassParameters->minDistanceSq = BoidVariableParameters.minDistanceSq();
-	PassParameters->cohesionFactor = BoidVariableParameters.cohesionFactor;
-	PassParameters->separationFactor = BoidVariableParameters.separationFactor;
-	PassParameters->alignmentFactor = BoidVariableParameters.alignmentFactor;
+	PassParameters->minSpeed = BoidCurrentParameters.DynamicParameters.minSpeed();
+	PassParameters->maxSpeed = BoidCurrentParameters.DynamicParameters.maxSpeed;
+	PassParameters->turnSpeed = BoidCurrentParameters.DynamicParameters.turnSpeed();
+	PassParameters->minDistance = BoidCurrentParameters.DynamicParameters.minDistance;
+	PassParameters->minDistanceSq = BoidCurrentParameters.DynamicParameters.minDistanceSq();
+	PassParameters->cohesionFactor = BoidCurrentParameters.DynamicParameters.cohesionFactor;
+	PassParameters->separationFactor = BoidCurrentParameters.DynamicParameters.separationFactor;
+	PassParameters->alignmentFactor = BoidCurrentParameters.DynamicParameters.alignmentFactor;
 
 	TShaderMapRef<FBoidsGBUpdateExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
-	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
+	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidCurrentParameters.ConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
 	BoidsRenderGraphPasses.UpdatePass = FComputeShaderUtils::AddPass(GraphBuilder,
 		RDG_EVENT_NAME("BoidsUpdateExample"),
 		ERDGPassFlags::Compute | ERDGPassFlags::NeverCull,
@@ -175,12 +176,12 @@ void FComputeShader_Boids::DispatchBoidsExample_RenderThread(FRDGBuilder& GraphB
 	//GraphBuilder.Execute();
 }
 
-void FComputeShader_Boids::DispatchBoidsReadbackExample_RenderThread(FRDGBuilder& GraphBuilder, const TCHAR* OwnerName, const FBoidConstantParameters& BoidConstantParameters, const FBoidVariableParameters& BoidVariableParameters, FBoidsRenderGraphPasses& BoidsRenderGraphPasses, FPingPongBuffer& BoidsPingPongBuffer, float DeltaTime, FBoidsGPUReadback& BoidsGPURequest)
+void FComputeShader_Boids::DispatchBoidsReadbackExample_RenderThread(FRDGBuilder& GraphBuilder, const TCHAR* OwnerName,  const FBoidCurrentParameters& BoidCurrentParameters, FBoidsRenderGraphPasses& BoidsRenderGraphPasses, FPingPongBuffer& BoidsPingPongBuffer, float DeltaTime, FBoidsGPUReadback& BoidsGPURequest)
 {
-	DispatchBoidsExample_RenderThread(GraphBuilder, OwnerName, BoidConstantParameters, BoidVariableParameters, BoidsRenderGraphPasses, BoidsPingPongBuffer, DeltaTime);
+	DispatchBoidsExample_RenderThread(GraphBuilder, OwnerName, BoidCurrentParameters, BoidsRenderGraphPasses, BoidsPingPongBuffer, DeltaTime);
 
-	BoidsGPURequest.NrWorkGroups = FMath::DivideAndRoundUp(BoidConstantParameters.numBoids, BoidsExample_ThreadsPerGroup);
-	BoidsGPURequest.BufferLength = BoidConstantParameters.numBoids;
+	BoidsGPURequest.NrWorkGroups = FMath::DivideAndRoundUp(BoidCurrentParameters.ConstantParameters.numBoids, BoidsExample_ThreadsPerGroup);
+	BoidsGPURequest.BufferLength = BoidCurrentParameters.ConstantParameters.numBoids;
 
 	FRHIGPUBufferReadback* Readback = &BoidsGPURequest.Readback;
 	FRDGBufferRef writeRef = BoidsPingPongBuffer.WriteScopedRef;

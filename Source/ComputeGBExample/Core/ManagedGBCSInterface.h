@@ -20,12 +20,12 @@ class IManagedGBCSInterface
 
 public:
 
-	virtual void InitComputeShader()
+	virtual void InitComputeShader_GameThread()
 	{}
 
 	virtual void ExecuteComputeShader_RenderThread(FRDGBuilder& GraphBuilder)
 	{}
 
-	virtual void DisposeComputeShader()
+	virtual void DisposeComputeShader_GameThread()
 	{}
 };

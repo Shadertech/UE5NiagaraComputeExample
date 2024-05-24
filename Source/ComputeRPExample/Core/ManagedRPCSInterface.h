@@ -19,15 +19,18 @@ class IManagedRPCSInterface
 	GENERATED_BODY()
 
 public:
-	virtual void InitComputeShader()
+	virtual void InitComputeShader_GameThread()
 	{}
 
 	virtual void InitComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList)
 	{}
 
-	virtual void ExecuteComputeShader(float DeltaTime)
+	virtual void ExecuteComputeShader_GameThread(float DeltaTime)
 	{}
 
 	virtual void ExecuteComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList)
+	{}
+
+	virtual void DisposeComputeShader_GameThread()
 	{}
 };

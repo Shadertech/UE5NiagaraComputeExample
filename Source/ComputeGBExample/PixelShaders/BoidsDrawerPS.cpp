@@ -21,7 +21,7 @@ void FPixelShader_BoidsDrawer::InitDrawToRenderTargetExample_RenderThread(FRDGBu
 	RenderTargetTexture = GraphBuilder.RegisterExternalTexture(pooledRenderTarget);*/
 }
 
-void FPixelShader_BoidsDrawer::DrawToRenderTargetExample_RenderThread(FRDGBuilder& GraphBuilder, const FBoidConstantParameters& BoidConstantParameters, FRDGTextureSRVRef OutputTexture, UTextureRenderTarget2D* RenderTarget, FRDGTextureRef& RenderTargetTexture)
+void FPixelShader_BoidsDrawer::DrawToRenderTargetExample_RenderThread(FRDGBuilder& GraphBuilder, FRDGTextureSRVRef OutputTexture, UTextureRenderTarget2D* RenderTarget, FRDGTextureRef& RenderTargetTexture)
 {
 	QUICK_SCOPE_CYCLE_COUNTER(STAT_ShaderPlugin_PixelShader); // Used to gather CPU profiling data for the UE4 session frontend
 	SCOPED_DRAW_EVENT(GraphBuilder.RHICmdList, ShaderPlugin_Pixel); // Used to profile GPU activity and add metadata to be consumed by for example RenderDoc

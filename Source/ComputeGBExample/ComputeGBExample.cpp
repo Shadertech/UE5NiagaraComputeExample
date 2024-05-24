@@ -57,7 +57,7 @@ void FComputeGBExampleModule::Register(IManagedGBCSInterface* ManagedRPCS)
 	if (!ManagedCSs.Contains(ManagedRPCS))
 	{
 		ManagedCSs.Add(ManagedRPCS);
-		ManagedRPCS->InitComputeShader();
+		ManagedRPCS->InitComputeShader_GameThread();
 	}
 
 	if (ManagedCSs.Num() > 0)
@@ -71,7 +71,7 @@ void FComputeGBExampleModule::Deregister(IManagedGBCSInterface* ManagedRPCS)
 	if (ManagedCSs.Contains(ManagedRPCS))
 	{
 		ManagedCSs.Remove(ManagedRPCS);
-		ManagedRPCS->DisposeComputeShader();
+		ManagedRPCS->DisposeComputeShader_GameThread();
 	}
 
 	if (ManagedCSs.Num() == 0)

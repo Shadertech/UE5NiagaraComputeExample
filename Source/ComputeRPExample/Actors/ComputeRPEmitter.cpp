@@ -4,6 +4,7 @@
 #include "ScenePrivate.h"
 #include "Niagara/NiagaraDataInterfaceStructuredBuffer.h"
 #include "ComputeShaders/BoidsRPCS.h"
+#include "Settings/ComputeExampleSettings.h"
 
 #define BoidsExample_ThreadsPerGroup 512
 DEFINE_LOG_CATEGORY(LogComputeRPEmitter);
@@ -46,25 +47,26 @@ void AComputeRPEmitter::BeginDestroy()
 	}
 }
 
+// ____________________________________________ DisposeComputeShader
+void AComputeRPEmitter::DisposeComputeShader_GameThread()
+{
+}
+
 // ____________________________________________ Init Compute Shader
 
-void AComputeRPEmitter::InitComputeShader()
+void AComputeRPEmitter::InitComputeShader_GameThread()
 {
 	check(IsInGameThread());
-
-	BoidVariableParameters.boundsRadius = BoundsConstantParameters.Radius;
-	BoidVariableParameters.transformMatrix = (FMatrix44f)BoundsMatrix;
-	BoidVariableParameters.inverseTransformMatrix = (FMatrix44f)BoundsMatrix.Inverse();
 
 	BoundsMatrix = FMatrix::Identity.ConcatTranslation(GetActorLocation());
 	BoidsArray.Empty(); // Clear any existing elements in the array
 
-	// Resize the array to accommodate numboids elements
-	BoidsArray.SetNum(BoidConstantParameters.numBoids);
-
 	BoidsPingPongBuffer = FPingPongBuffer();
 
-	if (SetNiagaraConstantParameters())
+	const UComputeExampleSettings* computeExampleSettings = UComputeExampleSettings::GetComputeExampleSettings();
+	Niagara->SetAsset(computeExampleSettings->BoidsEmitterVFX.LoadSynchronous());
+
+	if (SetConstantParameters() && SetDynamicParameters())
 	{
 		Niagara->Activate(true);
 	}
@@ -101,19 +103,19 @@ void AComputeRPEmitter::InitComputeShader_RenderThread(FRHICommandListImmediate&
 	SCOPED_DRAW_EVENT(RHICmdList, ComputeRPExample_Init); // Used to profile GPU activity and add metadata to be consumed by for example RenderDoc
 
 	FBoidsRPInitExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FBoidsRPInitExampleCS::FParameters>();
-	PassParameters->numBoids = BoidConstantParameters.numBoids;
-	PassParameters->maxSpeed = BoidVariableParameters.maxSpeed;
+	PassParameters->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
+	PassParameters->maxSpeed = BoidCurrentParameters.DynamicParameters.maxSpeed;
 	PassParameters->boidsOut = BoidsPingPongBuffer.WriteScopedUAV;
 
-	PassParameters->boundsInverseMatrix = BoidVariableParameters.inverseTransformMatrix;
-	PassParameters->boundsMatrix = BoidVariableParameters.transformMatrix;
-	PassParameters->boundsRadius = BoidVariableParameters.boundsRadius;
+	PassParameters->boundsInverseMatrix = BoidCurrentParameters.inverseTransformMatrix;
+	PassParameters->boundsMatrix = BoidCurrentParameters.transformMatrix;
+	PassParameters->boundsRadius = BoidCurrentParameters.boundsRadius;
 
 	PassParameters->randSeed = FMath::Rand() % (INT32_MAX + 1);
 
 	TShaderMapRef<FBoidsRPInitExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
 
-	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
+	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidCurrentParameters.ConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
 
 	FComputeShaderUtils::AddPass(GraphBuilder,
 		RDG_EVENT_NAME("RP_InitBoidsExample"),
@@ -130,17 +132,13 @@ void AComputeRPEmitter::InitComputeShader_RenderThread(FRHICommandListImmediate&
 
 // ____________________________________________ Execute Compute Shader
 
-void AComputeRPEmitter::ExecuteComputeShader(float DeltaTime)
+void AComputeRPEmitter::ExecuteComputeShader_GameThread(float DeltaTime)
 {
 	check(IsInGameThread());
 
 	LastDeltaTime = DeltaTime;
 
-	BoidVariableParameters.boundsRadius = BoundsConstantParameters.Radius;
-	BoidVariableParameters.transformMatrix = (FMatrix44f)BoundsMatrix;
-	BoidVariableParameters.inverseTransformMatrix = (FMatrix44f)BoundsMatrix.Inverse();
-
-	SetNiagaraVariableParameters();
+	SetDynamicParameters();
 }
 
 void AComputeRPEmitter::ExecuteComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList)
@@ -158,26 +156,26 @@ void AComputeRPEmitter::ExecuteComputeShader_RenderThread(FRHICommandListImmedia
 	BoidsPingPongBuffer.RegisterRW(GraphBuilder, SRVName, UAVName);
 
 	FBoidsRPUpdateExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FBoidsRPUpdateExampleCS::FParameters>();
-	PassParameters->numBoids = BoidConstantParameters.numBoids;
-	PassParameters->deltaTime = LastDeltaTime * BoidVariableParameters.simulationSpeed;
+	PassParameters->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
+	PassParameters->deltaTime = LastDeltaTime * BoidCurrentParameters.DynamicParameters.simulationSpeed;
 	PassParameters->boidsIn = BoidsPingPongBuffer.ReadScopedSRV;
 	PassParameters->boidsOut = BoidsPingPongBuffer.WriteScopedUAV;
 
-	PassParameters->boundsInverseMatrix = BoidVariableParameters.inverseTransformMatrix;
-	PassParameters->boundsMatrix = BoidVariableParameters.transformMatrix;
-	PassParameters->boundsRadius = BoidVariableParameters.boundsRadius;
+	PassParameters->boundsInverseMatrix = BoidCurrentParameters.inverseTransformMatrix;
+	PassParameters->boundsMatrix = BoidCurrentParameters.transformMatrix;
+	PassParameters->boundsRadius = BoidCurrentParameters.boundsRadius;
 
-	PassParameters->minSpeed = BoidVariableParameters.minSpeed();
-	PassParameters->maxSpeed = BoidVariableParameters.maxSpeed;
-	PassParameters->turnSpeed = BoidVariableParameters.turnSpeed();
-	PassParameters->minDistance = BoidVariableParameters.minDistance;
-	PassParameters->minDistanceSq = BoidVariableParameters.minDistanceSq();
-	PassParameters->cohesionFactor = BoidVariableParameters.cohesionFactor;
-	PassParameters->separationFactor = BoidVariableParameters.separationFactor;
-	PassParameters->alignmentFactor = BoidVariableParameters.alignmentFactor;
+	PassParameters->minSpeed = BoidCurrentParameters.DynamicParameters.minSpeed();
+	PassParameters->maxSpeed = BoidCurrentParameters.DynamicParameters.maxSpeed;
+	PassParameters->turnSpeed = BoidCurrentParameters.DynamicParameters.turnSpeed();
+	PassParameters->minDistance = BoidCurrentParameters.DynamicParameters.minDistance;
+	PassParameters->minDistanceSq = BoidCurrentParameters.DynamicParameters.minDistanceSq();
+	PassParameters->cohesionFactor = BoidCurrentParameters.DynamicParameters.cohesionFactor;
+	PassParameters->separationFactor = BoidCurrentParameters.DynamicParameters.separationFactor;
+	PassParameters->alignmentFactor = BoidCurrentParameters.DynamicParameters.alignmentFactor;
 
 	TShaderMapRef<FBoidsRPUpdateExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
-	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
+	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidCurrentParameters.ConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
 	FComputeShaderUtils::AddPass(GraphBuilder,
 		RDG_EVENT_NAME("RP_BoidsUpdateExample"),
 		ERDGPassFlags::Compute | ERDGPassFlags::NeverCull,
@@ -191,8 +189,14 @@ void AComputeRPEmitter::ExecuteComputeShader_RenderThread(FRHICommandListImmedia
 }
 
 
-bool AComputeRPEmitter::SetNiagaraConstantParameters()
+bool AComputeRPEmitter::SetConstantParameters()
 {
+	const UComputeExampleSettings* computeExampleSettings = UComputeExampleSettings::GetComputeExampleSettings();
+	BoidCurrentParameters.ConstantParameters = computeExampleSettings->BoidConstantParameters;
+
+	// Resize the array to accommodate numboids elements
+	BoidsArray.SetNum(BoidCurrentParameters.ConstantParameters.numBoids);
+
 	if (Niagara == nullptr || Niagara->GetAsset() == nullptr)
 	{
 		return false;
@@ -205,20 +209,27 @@ bool AComputeRPEmitter::SetNiagaraConstantParameters()
 
 	if (data)
 	{
-		data->numBoids = BoidConstantParameters.numBoids;
+		data->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
 		data->SetBuffer(nullptr);
 	}
 
-	Niagara->SetIntParameter("numBoids", BoidConstantParameters.numBoids);
+	Niagara->SetIntParameter("numBoids", BoidCurrentParameters.ConstantParameters.numBoids);
 
 	return true;
 }
 
-void AComputeRPEmitter::SetNiagaraVariableParameters()
+bool AComputeRPEmitter::SetDynamicParameters()
 {
+	const UComputeExampleSettings* computeExampleSettings = UComputeExampleSettings::GetComputeExampleSettings();
+	BoidCurrentParameters.DynamicParameters = computeExampleSettings->BoidDynamicParameters;
+
+	BoidCurrentParameters.boundsRadius = BoundsConstantParameters.Radius;
+	BoidCurrentParameters.transformMatrix = (FMatrix44f)BoundsMatrix;
+	BoidCurrentParameters.inverseTransformMatrix = (FMatrix44f)BoundsMatrix.Inverse();
+
 	if (Niagara == nullptr || Niagara->GetAsset() == nullptr)
 	{
-		return;
+		return false;
 	}
 
 	// Get the parameter store of the Niagara component
@@ -228,7 +239,7 @@ void AComputeRPEmitter::SetNiagaraVariableParameters()
 
 	if (data)
 	{
-		data->numBoids = BoidConstantParameters.numBoids;
+		data->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
 
 		if (!data->GetBuffer().IsValid()
 			&& BoidsPingPongBuffer.ReadPooled.IsValid())
@@ -237,6 +248,8 @@ void AComputeRPEmitter::SetNiagaraVariableParameters()
 		}
 	}
 
-	Niagara->SetFloatParameter("meshScale", BoidVariableParameters.meshScale);
-	Niagara->SetFloatParameter("worldScale", BoidVariableParameters.worldScale);
+	Niagara->SetFloatParameter("meshScale", BoidCurrentParameters.DynamicParameters.meshScale);
+	Niagara->SetFloatParameter("worldScale", BoidCurrentParameters.worldScale);
+
+	return true;
 }

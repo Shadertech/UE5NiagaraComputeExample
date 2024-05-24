@@ -4,6 +4,7 @@
 #include "ScenePrivate.h"
 #include "Niagara/NiagaraDataInterfaceStructuredBufferLegacy.h"
 #include "ComputeShaders/BoidsRPLegacyCS.h"
+#include "Settings/ComputeExampleSettings.h"
 
 #define BoidsExample_ThreadsPerGroup 512
 DEFINE_LOG_CATEGORY(LogComputeRPLegacyEmitter);
@@ -46,23 +47,24 @@ void AComputeRPLegacyEmitter::BeginDestroy()
 	}
 }
 
+// ____________________________________________ DisposeComputeShader
+void AComputeRPLegacyEmitter::DisposeComputeShader_GameThread()
+{
+}
+
 // ____________________________________________ Init Compute Shader
 
-void AComputeRPLegacyEmitter::InitComputeShader()
+void AComputeRPLegacyEmitter::InitComputeShader_GameThread()
 {
 	check(IsInGameThread());
-
-	BoidVariableParameters.boundsRadius = BoundsConstantParameters.Radius;
-	BoidVariableParameters.transformMatrix = (FMatrix44f)BoundsMatrix;
-	BoidVariableParameters.inverseTransformMatrix = (FMatrix44f)BoundsMatrix.Inverse();
 
 	BoundsMatrix = FMatrix::Identity.ConcatTranslation(GetActorLocation());
 	BoidsArray.Empty(); // Clear any existing elements in the array
 
-	// Resize the array to accommodate numboids elements
-	BoidsArray.SetNum(BoidConstantParameters.numBoids);
+	const UComputeExampleSettings* computeExampleSettings = UComputeExampleSettings::GetComputeExampleSettings();
+	Niagara->SetAsset(computeExampleSettings->BoidsEmitterLegacyVFX.LoadSynchronous());
 
-	if (SetNiagaraConstantParameters())
+	if (SetConstantParameters() && SetDynamicParameters())
 	{
 		Niagara->Activate(true);
 	}
@@ -95,7 +97,7 @@ void AComputeRPLegacyEmitter::InitComputeShader_RenderThread(FRHICommandListImme
 
 	auto readSRVCreateDesc = FRHIViewDesc::CreateBufferSRV()
 		.SetType(FRHIViewDesc::EBufferType::Structured)
-		.SetNumElements(BoidConstantParameters.numBoids)
+		.SetNumElements(BoidCurrentParameters.ConstantParameters.numBoids)
 		.SetStride(BoidItemSize);
 
 	readRef = RHICmdList.CreateShaderResourceView(readBuffer, readSRVCreateDesc);
@@ -103,12 +105,12 @@ void AComputeRPLegacyEmitter::InitComputeShader_RenderThread(FRHICommandListImme
 
 	FRHIBatchedShaderParameters& BatchedParameters = RHICmdList.GetScratchShaderParameters();
 
-	ComputeShader->SetUniformParameters(BatchedParameters, BoidConstantParameters, BoidVariableParameters, 0.0f);
+	ComputeShader->SetUniformParameters(BatchedParameters, BoidCurrentParameters, 0.0f);
 	ComputeShader->SetBufferParameters(BatchedParameters, nullptr, writeRef);
 
 	RHICmdList.SetBatchedShaderParameters(ShaderRHI, BatchedParameters);
 
-	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
+	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidCurrentParameters.ConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
 	DispatchComputeShader(RHICmdList, ComputeShader, GroupCounts.X, GroupCounts.Y, GroupCounts.Z);
 
 	FRHIBatchedShaderUnbinds& BatchedUnbinds = RHICmdList.GetScratchShaderUnbinds();
@@ -124,17 +126,13 @@ void AComputeRPLegacyEmitter::InitComputeShader_RenderThread(FRHICommandListImme
 
 // ____________________________________________ Execute Compute Shader
 
-void AComputeRPLegacyEmitter::ExecuteComputeShader(float DeltaTime)
+void AComputeRPLegacyEmitter::ExecuteComputeShader_GameThread(float DeltaTime)
 {
 	check(IsInGameThread());
 
 	LastDeltaTime = DeltaTime;
 
-	BoidVariableParameters.boundsRadius = BoundsConstantParameters.Radius;
-	BoidVariableParameters.transformMatrix = (FMatrix44f)BoundsMatrix;
-	BoidVariableParameters.inverseTransformMatrix = (FMatrix44f)BoundsMatrix.Inverse();
-
-	SetNiagaraVariableParameters();
+	SetDynamicParameters();
 }
 
 void AComputeRPLegacyEmitter::ExecuteComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList)
@@ -147,12 +145,12 @@ void AComputeRPLegacyEmitter::ExecuteComputeShader_RenderThread(FRHICommandListI
 
 	FRHIBatchedShaderParameters& BatchedParameters = RHICmdList.GetScratchShaderParameters();
 
-	ComputeShader->SetUniformParameters(BatchedParameters, BoidConstantParameters, BoidVariableParameters, LastDeltaTime);
+	ComputeShader->SetUniformParameters(BatchedParameters, BoidCurrentParameters, LastDeltaTime);
 	ComputeShader->SetBufferParameters(BatchedParameters, readRef, writeRef);
 
 	RHICmdList.SetBatchedShaderParameters(ShaderRHI, BatchedParameters);
 
-	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
+	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidCurrentParameters.ConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
 	DispatchComputeShader(RHICmdList, ComputeShader, GroupCounts.X, GroupCounts.Y, GroupCounts.Z);
 
 	FRHIBatchedShaderUnbinds& BatchedUnbinds = RHICmdList.GetScratchShaderUnbinds();
@@ -163,13 +161,19 @@ void AComputeRPLegacyEmitter::ExecuteComputeShader_RenderThread(FRHICommandListI
 
 	auto readSRVCreateDesc = FRHIViewDesc::CreateBufferSRV()
 		.SetType(FRHIViewDesc::EBufferType::Structured)
-		.SetNumElements(BoidConstantParameters.numBoids)
+		.SetNumElements(BoidCurrentParameters.ConstantParameters.numBoids)
 		.SetStride(BoidItemSize);
 	readRef = RHICmdList.CreateShaderResourceView(readBuffer, readSRVCreateDesc);
 }
 
-bool AComputeRPLegacyEmitter::SetNiagaraConstantParameters()
+bool AComputeRPLegacyEmitter::SetConstantParameters()
 {
+	const UComputeExampleSettings* computeExampleSettings = UComputeExampleSettings::GetComputeExampleSettings();
+	BoidCurrentParameters.ConstantParameters = computeExampleSettings->BoidConstantParameters;
+
+	// Resize the array to accommodate numboids elements
+	BoidsArray.SetNum(BoidCurrentParameters.ConstantParameters.numBoids);
+
 	if (Niagara == nullptr || Niagara->GetAsset() == nullptr)
 	{
 		return false;
@@ -182,20 +186,27 @@ bool AComputeRPLegacyEmitter::SetNiagaraConstantParameters()
 
 	if (data)
 	{
-		data->numBoids = BoidConstantParameters.numBoids;
+		data->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
 		data->SetBuffer(nullptr);
 	}
 
-	Niagara->SetIntParameter("numBoids", BoidConstantParameters.numBoids);
+	Niagara->SetIntParameter("numBoids", BoidCurrentParameters.ConstantParameters.numBoids);
 
 	return true;
 }
 
-void AComputeRPLegacyEmitter::SetNiagaraVariableParameters()
+bool AComputeRPLegacyEmitter::SetDynamicParameters()
 {
+	const UComputeExampleSettings* computeExampleSettings = UComputeExampleSettings::GetComputeExampleSettings();
+	BoidCurrentParameters.DynamicParameters = computeExampleSettings->BoidDynamicParameters;
+
+	BoidCurrentParameters.boundsRadius = BoundsConstantParameters.Radius;
+	BoidCurrentParameters.transformMatrix = (FMatrix44f)BoundsMatrix;
+	BoidCurrentParameters.inverseTransformMatrix = (FMatrix44f)BoundsMatrix.Inverse();
+
 	if (Niagara == nullptr || Niagara->GetAsset() == nullptr)
 	{
-		return;
+		return false;
 	}
 
 	// Get the parameter store of the Niagara component
@@ -205,7 +216,7 @@ void AComputeRPLegacyEmitter::SetNiagaraVariableParameters()
 
 	if (data)
 	{
-		data->numBoids = BoidConstantParameters.numBoids;
+		data->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
 
 		if (!data->GetBuffer().IsValid()
 			&& readRef.IsValid())
@@ -214,6 +225,8 @@ void AComputeRPLegacyEmitter::SetNiagaraVariableParameters()
 		}
 	}
 
-	Niagara->SetFloatParameter("meshScale", BoidVariableParameters.meshScale);
-	Niagara->SetFloatParameter("worldScale", BoidVariableParameters.worldScale);
+	Niagara->SetFloatParameter("meshScale", BoidCurrentParameters.DynamicParameters.meshScale);
+	Niagara->SetFloatParameter("worldScale", BoidCurrentParameters.worldScale);
+
+	return true;
 }

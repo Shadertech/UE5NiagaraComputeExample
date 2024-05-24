@@ -23,29 +23,25 @@ protected:
 	virtual void BeginDestroy() override;
 
 protected:
-	UFUNCTION(BlueprintCallable, Category = "Niagara")
-	bool SetNiagaraConstantParameters();
-	UFUNCTION(BlueprintCallable, Category = "Niagara")
-	void SetNiagaraVariableParameters();
+	bool SetConstantParameters();
+	bool SetDynamicParameters();
 
 public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Managed Compute Shader Interface 
-	virtual void InitComputeShader() override;
+	virtual void InitComputeShader_GameThread() override;
 	virtual void ExecuteComputeShader_RenderThread(FRDGBuilder& GraphBuilder) override;
-	virtual void DisposeComputeShader() override;
+	virtual void DisposeComputeShader_GameThread() override;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Parameters")
-	FBoidConstantParameters BoidConstantParameters;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Parameters")
-	FBoidVariableParameters BoidVariableParameters;
+	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Boid Parameters")
+	FBoidCurrentParameters BoidCurrentParameters;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boids")
 	TArray<FBoidItem> BoidsArray;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Niagara")
+	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Niagara")
 	UNiagaraComponent* Niagara = nullptr;
 private:
 	FPingPongBuffer BoidsPingPongBuffer;

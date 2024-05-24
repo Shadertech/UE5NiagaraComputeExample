@@ -24,15 +24,13 @@ protected:
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Niagara")
-	bool SetNiagaraConstantParameters();
+	bool SetConstantParameters();
 	UFUNCTION(BlueprintCallable, Category = "Niagara")
-	void SetNiagaraVariableParameters();
+	bool SetDynamicParameters();
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Parameters")
-	FBoidConstantParameters BoidConstantParameters;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Parameters")
-	FBoidVariableParameters BoidVariableParameters;
+	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Boid Parameters")
+	FBoidCurrentParameters BoidCurrentParameters;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Niagara")
 	UNiagaraComponent* Niagara = nullptr;

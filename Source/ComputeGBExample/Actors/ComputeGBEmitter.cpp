@@ -7,6 +7,7 @@
 #include "GlobalShader.h"
 #include "Engine/World.h"
 #include "Niagara/NiagaraDataInterfaceStructuredBuffer.h"
+#include "Settings/ComputeExampleSettings.h"
 
 DEFINE_LOG_CATEGORY(LogComputeGBEmitter);
 
@@ -38,13 +39,58 @@ void AComputeGBEmitter::Tick(float DeltaTime)
 {
 	LastDeltaTime = DeltaTime;
 
-	SetNiagaraVariableParameters();
+	SetDynamicParameters();
 
 	Super::Tick(DeltaTime);
 }
 
-bool AComputeGBEmitter::SetNiagaraConstantParameters()
+void AComputeGBEmitter::InitComputeShader_GameThread()
 {
+	check(IsInGameThread());
+
+	BoundsMatrix = FMatrix::Identity.ConcatTranslation(GetActorLocation());
+	BoidsArray.Empty(); // Clear any existing elements in the array
+
+	BoidsPingPongBuffer = FPingPongBuffer();
+	BoidsRenderGraphPasses = FBoidsRenderGraphPasses();
+
+	const UComputeExampleSettings* computeExampleSettings = UComputeExampleSettings::GetComputeExampleSettings();
+	Niagara->SetAsset(computeExampleSettings->BoidsEmitterVFX.LoadSynchronous());
+
+	if (SetConstantParameters() && SetDynamicParameters())
+	{
+		Niagara->Activate(true);
+	}
+}
+
+void AComputeGBEmitter::ExecuteComputeShader_RenderThread(FRDGBuilder& GraphBuilder)
+{
+	check(IsInRenderingThread());
+
+	BoidsRenderGraphPasses.ClearPasses();
+
+	if (!BoidsRenderGraphPasses.init)
+	{
+		FComputeShader_Boids::InitBoidsExample_RenderThread(GraphBuilder, TEXT("ComputeGBEmitter_"), BoidsArray, BoidCurrentParameters, BoidsRenderGraphPasses, BoidsPingPongBuffer);
+		return;
+	}
+
+	FComputeShader_Boids::DispatchBoidsExample_RenderThread(GraphBuilder, TEXT("ComputeGBEmitter_"), BoidCurrentParameters, BoidsRenderGraphPasses, BoidsPingPongBuffer, LastDeltaTime);
+}
+
+void AComputeGBEmitter::DisposeComputeShader_GameThread()
+{
+	check(IsInGameThread());
+}
+
+bool AComputeGBEmitter::SetConstantParameters()
+{
+	const UComputeExampleSettings* computeExampleSettings = UComputeExampleSettings::GetComputeExampleSettings();
+	BoidCurrentParameters.ConstantParameters = computeExampleSettings->BoidConstantParameters;
+
+	// Resize the array to accommodate numboids elements
+	BoidsArray.SetNum(BoidCurrentParameters.ConstantParameters.numBoids);
+
 	if (Niagara == nullptr || Niagara->GetAsset() == nullptr)
 	{
 		return false;
@@ -57,20 +103,27 @@ bool AComputeGBEmitter::SetNiagaraConstantParameters()
 
 	if (data)
 	{
-		data->numBoids = BoidConstantParameters.numBoids;
+		data->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
 		data->SetBuffer(nullptr);
 	}
 
-	Niagara->SetIntParameter("numBoids", BoidConstantParameters.numBoids);
+	Niagara->SetIntParameter("numBoids", BoidCurrentParameters.ConstantParameters.numBoids);
 
 	return true;
 }
 
-void AComputeGBEmitter::SetNiagaraVariableParameters()
+bool AComputeGBEmitter::SetDynamicParameters()
 {
+	const UComputeExampleSettings* computeExampleSettings = UComputeExampleSettings::GetComputeExampleSettings();
+	BoidCurrentParameters.DynamicParameters = computeExampleSettings->BoidDynamicParameters;
+
+	BoidCurrentParameters.boundsRadius = BoundsConstantParameters.Radius;
+	BoidCurrentParameters.transformMatrix = (FMatrix44f)BoundsMatrix;
+	BoidCurrentParameters.inverseTransformMatrix = (FMatrix44f)BoundsMatrix.Inverse();
+
 	if (Niagara == nullptr || Niagara->GetAsset() == nullptr)
 	{
-		return;
+		return false;
 	}
 
 	// Get the parameter store of the Niagara component
@@ -80,57 +133,17 @@ void AComputeGBEmitter::SetNiagaraVariableParameters()
 
 	if (data)
 	{
-		data->numBoids = BoidConstantParameters.numBoids;
+		data->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
 
-		if (!data->GetBuffer().IsValid() 
+		if (!data->GetBuffer().IsValid()
 			&& BoidsPingPongBuffer.ReadPooled.IsValid())
 		{
 			data->SetBuffer(BoidsPingPongBuffer.ReadPooled);
 		}
 	}
 
-	Niagara->SetFloatParameter("meshScale", BoidVariableParameters.meshScale);
-	Niagara->SetFloatParameter("worldScale", BoidVariableParameters.worldScale);
-}
+	Niagara->SetFloatParameter("meshScale", BoidCurrentParameters.DynamicParameters.meshScale);
+	Niagara->SetFloatParameter("worldScale", BoidCurrentParameters.worldScale);
 
-void AComputeGBEmitter::InitComputeShader()
-{
-	check(IsInGameThread());
-
-	BoundsMatrix = FMatrix::Identity.ConcatTranslation(GetActorLocation());
-	BoidsArray.Empty(); // Clear any existing elements in the array
-
-	// Resize the array to accommodate numboids elements
-	BoidsArray.SetNum(BoidConstantParameters.numBoids);
-
-	BoidsPingPongBuffer = FPingPongBuffer();
-	BoidsRenderGraphPasses = FBoidsRenderGraphPasses();
-
-	if (SetNiagaraConstantParameters())
-	{
-		Niagara->Activate(true);
-	}
-}
-
-void AComputeGBEmitter::ExecuteComputeShader_RenderThread(FRDGBuilder& GraphBuilder)
-{
-	check(IsInRenderingThread());
-
-	BoidsRenderGraphPasses.ClearPasses();
-
-	BoidVariableParameters.boundsRadius = BoundsConstantParameters.Radius;
-	BoidVariableParameters.transformMatrix = (FMatrix44f)BoundsMatrix;
-	BoidVariableParameters.inverseTransformMatrix = (FMatrix44f)BoundsMatrix.Inverse();
-
-	if (!BoidsRenderGraphPasses.init)
-	{
-		FComputeShader_Boids::InitBoidsExample_RenderThread(GraphBuilder, TEXT("ComputeGBEmitter_"), BoidsArray, BoidConstantParameters, BoidVariableParameters, BoidsRenderGraphPasses, BoidsPingPongBuffer);
-	}
-
-	FComputeShader_Boids::DispatchBoidsExample_RenderThread(GraphBuilder, TEXT("ComputeGBEmitter_"), BoidConstantParameters, BoidVariableParameters, BoidsRenderGraphPasses, BoidsPingPongBuffer, LastDeltaTime);
-}
-
-void AComputeGBEmitter::DisposeComputeShader()
-{
-	check(IsInGameThread());
+	return true;
 }
