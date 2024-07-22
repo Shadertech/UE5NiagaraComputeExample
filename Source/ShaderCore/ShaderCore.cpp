@@ -2,7 +2,6 @@
 
 #include "ShaderCore.h"
 #include "Interfaces/IPluginManager.h"
-#include "ShaderCore.h"
 
 #define LOCTEXT_NAMESPACE "FShaderCoreModule"
 

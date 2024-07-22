@@ -10,6 +10,7 @@
 	"DocsURL": "https://github.com/Shadertech/UE5NiagaraComputeExample",
 	"MarketplaceURL": "",
 	"SupportURL": "https://github.com/Shadertech/UE5NiagaraComputeExample",
+	"EngineVersion": "5.4.0",
 	"CanContainContent": true,
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": true,

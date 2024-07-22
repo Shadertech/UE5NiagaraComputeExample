@@ -79,7 +79,6 @@ Shaders/CS_Calc.usf
 Shaders/CS_CalcStruct.ush
 Source/ShaderCore/InstancedBufferMesh/*
 Source/ShaderCore/Data/CalcLib.h
-Source/ShaderCore/Data/CalcLib.h
 Source/ComputeGBExample/Actors/ComputeGBMesher.cpp
 Source/ComputeGBExample/Actors/ComputeGBMesher.h
 Source/ComputeGBExample/Actors/ComputeGBProcessor.cpp
