@@ -1,7 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "ComputeRPLegacyExample.h"
-#include "ShaderCore.h"
+#include "ComputeCore.h"
 
 #define LOCTEXT_NAMESPACE "FComputeRPLegacyExampleModule"
 

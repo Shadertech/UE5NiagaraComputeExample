@@ -14,7 +14,7 @@
 #include "ComputeActorBase.generated.h"
 
 UCLASS()
-class SHADERCORE_API AComputeActorBase : public AActor
+class COMPUTECORE_API AComputeActorBase : public AActor
 {
 	GENERATED_BODY()
 	

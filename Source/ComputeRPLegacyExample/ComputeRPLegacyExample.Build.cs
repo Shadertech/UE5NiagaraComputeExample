@@ -26,7 +26,7 @@ public class ComputeRPLegacyExample : ModuleRules
 			new string[]
 			{
 				"Core",
-                "ShaderCore",
+                "ComputeCore",
 				"ComputeRPExample",
                 "RenderCore",
 				// ... add other public dependencies that you statically link with here ...

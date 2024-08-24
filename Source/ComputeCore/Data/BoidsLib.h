@@ -7,7 +7,7 @@
 #include "BoidsLib.generated.h"
 
 USTRUCT(BlueprintType)
-struct SHADERCORE_API FBoidItem
+struct COMPUTECORE_API FBoidItem
 {
 	GENERATED_BODY()
 
@@ -77,7 +77,7 @@ struct FBoidsRenderGraphPasses
 };
 
 USTRUCT(BlueprintType)
-struct SHADERCORE_API FBoidConstantParameters
+struct COMPUTECORE_API FBoidConstantParameters
 {
 	GENERATED_BODY()
 
@@ -87,7 +87,7 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct SHADERCORE_API FBoidDynamicParameters
+struct COMPUTECORE_API FBoidDynamicParameters
 {
 	GENERATED_BODY()
 
@@ -112,7 +112,7 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct SHADERCORE_API FBoidCurrentParameters
+struct COMPUTECORE_API FBoidCurrentParameters
 {
 	GENERATED_BODY()
 

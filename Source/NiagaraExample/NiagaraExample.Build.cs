@@ -26,7 +26,7 @@ public class NiagaraExample : ModuleRules
 			new string[]
 			{
 				"Core",
-                "ShaderCore",
+                "ComputeCore",
                 "RenderCore",
 				// ... add other public dependencies that you statically link with here ...
 			}

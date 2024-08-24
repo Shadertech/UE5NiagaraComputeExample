@@ -7,8 +7,6 @@
 #include "NiagaraSystemInstance.h"
 #include "RenderGraphBuilder.h"
 
-#include "Data/BoidsLib.h"
-
 static const TCHAR* TemplateShaderFile = TEXT("/ComputeExample/Niagara/NiagaraDataInterfaceStructuredBufferTemplate.ush");
 
 struct FStructuredBufferAttribute

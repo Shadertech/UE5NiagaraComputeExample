@@ -1,10 +1,7 @@
 #include "ComputeRPEmitter.h"
-#include "Kismet/GameplayStatics.h"
-#include "SceneRendering.h"
-#include "ScenePrivate.h"
-#include "Niagara/NiagaraDataInterfaceStructuredBuffer.h"
 #include "ComputeShaders/BoidsRPCS.h"
 #include "Settings/ComputeExampleSettings.h"
+#include "Niagara/NDIStructuredBufferFunctionLibrary.h"
 
 #define BoidsExample_ThreadsPerGroup 512
 DEFINE_LOG_CATEGORY(LogComputeRPEmitter);
@@ -202,16 +199,7 @@ bool AComputeRPEmitter::SetConstantParameters()
 		return false;
 	}
 
-	// Get the parameter store of the Niagara component
-	FNiagaraUserRedirectionParameterStore& ParameterStore = Niagara->GetOverrideParameters();
-	FNiagaraVariable SBParameter = FNiagaraVariable(FNiagaraTypeDefinition(UNiagaraDataInterfaceStructuredBuffer::StaticClass()), TEXT("boidsIn"));
-	UNiagaraDataInterfaceStructuredBuffer* data = (UNiagaraDataInterfaceStructuredBuffer*)ParameterStore.GetDataInterface(SBParameter);
-
-	if (data)
-	{
-		data->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
-		data->SetBuffer(nullptr);
-	}
+	UNDIStructuredBufferFunctionLibrary::SetNiagaraStructuredBuffer(Niagara, "boidsIn", BoidCurrentParameters.ConstantParameters.numBoids, nullptr);
 
 	Niagara->SetIntParameter("numBoids", BoidCurrentParameters.ConstantParameters.numBoids);
 
@@ -232,21 +220,7 @@ bool AComputeRPEmitter::SetDynamicParameters()
 		return false;
 	}
 
-	// Get the parameter store of the Niagara component
-	FNiagaraUserRedirectionParameterStore& ParameterStore = Niagara->GetOverrideParameters();
-	FNiagaraVariable SBParameter = FNiagaraVariable(FNiagaraTypeDefinition(UNiagaraDataInterfaceStructuredBuffer::StaticClass()), TEXT("boidsIn"));
-	UNiagaraDataInterfaceStructuredBuffer* data = (UNiagaraDataInterfaceStructuredBuffer*)ParameterStore.GetDataInterface(SBParameter);
-
-	if (data)
-	{
-		data->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
-
-		if (!data->GetBuffer().IsValid()
-			&& BoidsPingPongBuffer.ReadPooled.IsValid())
-		{
-			data->SetBuffer(BoidsPingPongBuffer.ReadPooled);
-		}
-	}
+	UNDIStructuredBufferFunctionLibrary::SetNiagaraStructuredBuffer(Niagara, "boidsIn", BoidCurrentParameters.ConstantParameters.numBoids, BoidsPingPongBuffer.ReadPooled);
 
 	Niagara->SetFloatParameter("meshScale", BoidCurrentParameters.DynamicParameters.meshScale);
 	Niagara->SetFloatParameter("worldScale", BoidCurrentParameters.worldScale);

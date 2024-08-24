@@ -4,6 +4,12 @@
 #include "ScenePrivate.h"
 #include "NiagaraDataInterfaceArrayFloat.h"
 #include "Settings/ComputeExampleSettings.h"
+#include "NiagaraDataInterfaceArrayFunctionLibrary.h"
+#include "NiagaraFunctionLibrary.h"
+
+//#include "NiagaraDataInterfaceArrayImpl.h"
+//#include "NiagaraDataInterfaceArrayImplHelpers.h"
+//NDIARRAY_GENERATE_IMPL_LWC(UNiagaraDataInterfaceArrayMatrix, FMatrix44f, MatrixData)
 
 DEFINE_LOG_CATEGORY(LogNiagaraBoids);
 
@@ -71,13 +77,37 @@ bool ANiagaraBoids::SetDynamicParameters()
 
 	BoundsMatrix = FMatrix::Identity.ConcatTranslation(GetActorLocation());
 
-	FNiagaraUserRedirectionParameterStore& ParameterStore = Niagara->GetOverrideParameters();
-	FNiagaraVariable SBParameter = FNiagaraVariable(FNiagaraTypeDefinition(UNiagaraDataInterfaceArrayMatrix::StaticClass()), TEXT("boundsMatrixArr"));
-	UNiagaraDataInterfaceArrayMatrix* data = (UNiagaraDataInterfaceArrayMatrix*)ParameterStore.GetDataInterface(SBParameter);
-	TArray<FMatrix44f> MatrixArray;
-	MatrixArray.Add((FMatrix44f)BoundsMatrix);
-	MatrixArray.Add((FMatrix44f)BoundsMatrix.Inverse());
-	data->InternalMatrixData = MatrixArray;
+	TArray<FMatrix> MatrixArray;
+	MatrixArray.Add(BoundsMatrix);
+	MatrixArray.Add(BoundsMatrix.Inverse());
+
+	bool EditorAndNotPlaying = false;
+
+#if WITH_EDITOR
+	UWorld* World = Niagara->GetWorld();
+	if (World && !World->IsGameWorld())
+	{
+		EditorAndNotPlaying = true;
+	}
+#endif
+
+	if (EditorAndNotPlaying)
+	{
+		/*if (UNiagaraDataInterfaceArrayMatrix* ArrayDI = UNiagaraFunctionLibrary::GetDataInterface<UNiagaraDataInterfaceArrayMatrix>(Niagara, "boundsMatrixArr"))
+		{
+			auto* ArrayProxy = static_cast<typename UNiagaraDataInterfaceArrayMatrix::FProxyType*>(ArrayDI->GetProxy());
+			const TArray<FMatrix> TempMatrixArray = MatrixArray;
+			ArrayProxy->SetArrayData(TempMatrixArray);
+		}*/
+		FNiagaraUserRedirectionParameterStore& ParameterStore = Niagara->GetOverrideParameters();
+		FNiagaraVariable SBParameter = FNiagaraVariable(FNiagaraTypeDefinition(UNiagaraDataInterfaceArrayMatrix::StaticClass()), TEXT("boundsMatrixArr"));
+		UNiagaraDataInterfaceArrayMatrix* data = (UNiagaraDataInterfaceArrayMatrix*)ParameterStore.GetDataInterface(SBParameter);
+		data->InternalMatrixData = (TArray<FMatrix44f>)MatrixArray;
+	}
+	else
+	{
+		UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayMatrix(Niagara, "boundsMatrixArr", MatrixArray);
+	}
 
 	Niagara->SetFloatParameter("boundsRadius", BoundsConstantParameters.Radius);
 

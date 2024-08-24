@@ -2,9 +2,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "SceneRendering.h"
 #include "ScenePrivate.h"
-#include "Niagara/NiagaraDataInterfaceStructuredBufferLegacy.h"
 #include "ComputeShaders/BoidsRPLegacyCS.h"
 #include "Settings/ComputeExampleSettings.h"
+#include "Niagara/NDIStructuredBufferLegacyFunctionLibrary.h"
 
 #define BoidsExample_ThreadsPerGroup 512
 DEFINE_LOG_CATEGORY(LogComputeRPLegacyEmitter);
@@ -84,17 +84,13 @@ void AComputeRPLegacyEmitter::InitComputeShader_RenderThread(FRHICommandListImme
 
 	// Copying data from BoidsArray to BoidItemRA
 	FMemory::Memcpy(BoidItemRA.GetData(), BoidsArray.GetData(), BoidItemSize * BoidsArray.Num());
-
 	// Creating a structured buffer for reading
 	FRHIResourceCreateInfo CreateReadInfo(TEXT("BoidsInBuffer"));
 	CreateReadInfo.ResourceArray = &BoidItemRA;
 	readBuffer = RHICmdList.CreateStructuredBuffer(BoidItemSize, BoidItemSize * BoidsArray.Num(), BUF_StructuredBuffer | BUF_ShaderResource, CreateReadInfo);
-
 	// Creating a structured buffer for writing
 	FRHIResourceCreateInfo CreateWriteInfo(TEXT("BoidsOutBuffer"));
-	CreateWriteInfo.ResourceArray = &BoidItemRA;
 	writeBuffer = RHICmdList.CreateStructuredBuffer(BoidItemSize, BoidItemSize * BoidsArray.Num(), BUF_UnorderedAccess | BUF_ShaderResource, CreateWriteInfo);
-
 	auto readSRVCreateDesc = FRHIViewDesc::CreateBufferSRV()
 		.SetType(FRHIViewDesc::EBufferType::Structured)
 		.SetNumElements(BoidCurrentParameters.ConstantParameters.numBoids)
@@ -102,7 +98,6 @@ void AComputeRPLegacyEmitter::InitComputeShader_RenderThread(FRHICommandListImme
 
 	readRef = RHICmdList.CreateShaderResourceView(readBuffer, readSRVCreateDesc);
 	writeRef = RHICmdList.CreateUnorderedAccessView(writeBuffer, false, false);
-
 	FRHIBatchedShaderParameters& BatchedParameters = RHICmdList.GetScratchShaderParameters();
 
 	ComputeShader->SetUniformParameters(BatchedParameters, BoidCurrentParameters, 0.0f);
@@ -149,16 +144,13 @@ void AComputeRPLegacyEmitter::ExecuteComputeShader_RenderThread(FRHICommandListI
 	ComputeShader->SetBufferParameters(BatchedParameters, readRef, writeRef);
 
 	RHICmdList.SetBatchedShaderParameters(ShaderRHI, BatchedParameters);
-
 	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidCurrentParameters.ConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
 	DispatchComputeShader(RHICmdList, ComputeShader, GroupCounts.X, GroupCounts.Y, GroupCounts.Z);
-
 	FRHIBatchedShaderUnbinds& BatchedUnbinds = RHICmdList.GetScratchShaderUnbinds();
 	ComputeShader->UnsetBufferParameters(BatchedUnbinds);
 	RHICmdList.SetBatchedShaderUnbinds(ShaderRHI, BatchedUnbinds);
 
 	RHICmdList.CopyBufferRegion(readBuffer, 0, writeBuffer, 0, BoidItemSize * BoidsArray.Num());
-
 	auto readSRVCreateDesc = FRHIViewDesc::CreateBufferSRV()
 		.SetType(FRHIViewDesc::EBufferType::Structured)
 		.SetNumElements(BoidCurrentParameters.ConstantParameters.numBoids)
@@ -179,16 +171,7 @@ bool AComputeRPLegacyEmitter::SetConstantParameters()
 		return false;
 	}
 
-	// Get the parameter store of the Niagara component
-	FNiagaraUserRedirectionParameterStore& ParameterStore = Niagara->GetOverrideParameters();
-	FNiagaraVariable SBParameter = FNiagaraVariable(FNiagaraTypeDefinition(UNiagaraDataInterfaceStructuredBufferLegacy::StaticClass()), TEXT("boidsIn"));
-	UNiagaraDataInterfaceStructuredBufferLegacy* data = (UNiagaraDataInterfaceStructuredBufferLegacy*)ParameterStore.GetDataInterface(SBParameter);
-
-	if (data)
-	{
-		data->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
-		data->SetBuffer(nullptr);
-	}
+	UNDIStructuredBufferLegacyFunctionLibrary::SetNiagaraStructuredBuffer(Niagara, "boidsIn", BoidCurrentParameters.ConstantParameters.numBoids, nullptr);
 
 	Niagara->SetIntParameter("numBoids", BoidCurrentParameters.ConstantParameters.numBoids);
 
@@ -209,21 +192,7 @@ bool AComputeRPLegacyEmitter::SetDynamicParameters()
 		return false;
 	}
 
-	// Get the parameter store of the Niagara component
-	FNiagaraUserRedirectionParameterStore& ParameterStore = Niagara->GetOverrideParameters();
-	FNiagaraVariable SBParameter = FNiagaraVariable(FNiagaraTypeDefinition(UNiagaraDataInterfaceStructuredBufferLegacy::StaticClass()), TEXT("boidsIn"));
-	UNiagaraDataInterfaceStructuredBufferLegacy* data = (UNiagaraDataInterfaceStructuredBufferLegacy*)ParameterStore.GetDataInterface(SBParameter);
-
-	if (data)
-	{
-		data->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
-
-		if (!data->GetBuffer().IsValid()
-			&& readRef.IsValid())
-		{
-			data->SetBuffer(readRef);
-		}
-	}
+	UNDIStructuredBufferLegacyFunctionLibrary::SetNiagaraStructuredBuffer(Niagara, "boidsIn", BoidCurrentParameters.ConstantParameters.numBoids, readRef);
 
 	Niagara->SetFloatParameter("meshScale", BoidCurrentParameters.DynamicParameters.meshScale);
 	Niagara->SetFloatParameter("worldScale", BoidCurrentParameters.worldScale);

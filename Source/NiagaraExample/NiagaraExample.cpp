@@ -1,7 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "NiagaraExample.h"
-#include "ShaderCore.h"
+#include "ComputeCore.h"
 
 #define LOCTEXT_NAMESPACE "FNiagaraExampleModule"
 

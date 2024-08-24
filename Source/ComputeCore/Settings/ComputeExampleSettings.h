@@ -6,7 +6,7 @@
 #include "ComputeExampleSettings.generated.h"
 
 UCLASS(config = Game, defaultconfig, meta = (DisplayName = "Compute Example Settings"))
-class SHADERCORE_API UComputeExampleSettings : public UDeveloperSettings
+class COMPUTECORE_API UComputeExampleSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
 

@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class ShaderCore : ModuleRules
+public class ComputeCore : ModuleRules
 {
-	public ShaderCore(ReadOnlyTargetRules Target) : base(Target)
+	public ComputeCore(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 

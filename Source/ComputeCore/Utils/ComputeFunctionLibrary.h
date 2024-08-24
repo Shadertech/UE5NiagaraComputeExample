@@ -11,7 +11,7 @@
  * 
  */
 UCLASS()
-class SHADERCORE_API UComputeFunctionLibrary : public UBlueprintFunctionLibrary
+class COMPUTECORE_API UComputeFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 	

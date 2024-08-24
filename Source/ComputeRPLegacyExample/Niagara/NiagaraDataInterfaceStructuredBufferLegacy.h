@@ -6,19 +6,18 @@
 #include "NiagaraShared.h"
 #include "NiagaraDataInterface.h"
 #include "RenderGraphFwd.h"
-#include "RenderGraphResources.h"
-#include "NiagaraDataInterfaceStructuredBuffer.generated.h"
+#include "NiagaraDataInterfaceStructuredBufferLegacy.generated.h"
 
 struct FNiagaraDataInterfaceGeneratedFunction;
 struct FNiagaraFunctionSignature;
 
-UCLASS(EditInlineNew, Category = "Rendering", meta = (DisplayName = "StructuredBuffer"))
-class SHADERCORE_API UNiagaraDataInterfaceStructuredBuffer : public UNiagaraDataInterface
+UCLASS(EditInlineNew, Category = "Rendering", meta = (DisplayName = "StructuredBufferLegacy"))
+class COMPUTERPLEGACYEXAMPLE_API UNiagaraDataInterfaceStructuredBufferLegacy : public UNiagaraDataInterface
 {
 	GENERATED_UCLASS_BODY()
 
 	BEGIN_SHADER_PARAMETER_STRUCT(FShaderParameters, )
-		SHADER_PARAMETER_RDG_BUFFER_SRV(StructuredBuffer<FBoidItem>, boidsIn)
+		SHADER_PARAMETER_SRV(StructuredBuffer<FBoidItem>, boidsIn)
 		SHADER_PARAMETER(int32, numBoids)
 	END_SHADER_PARAMETER_STRUCT()
 
@@ -26,17 +25,17 @@ public:
 	int32 numBoids;
 
 private:
-	TRefCountPtr<FRDGPooledBuffer> ReadPooled;
+	FShaderResourceViewRHIRef readRef;
 
 public:
-	 void SetBuffer(TRefCountPtr<FRDGPooledBuffer> InBuffer)
+	 void SetBuffer(FShaderResourceViewRHIRef InBuffer)
 	 {
-		 ReadPooled = InBuffer;
+		 readRef = InBuffer;
 	 }
 
-	 TRefCountPtr<FRDGPooledBuffer> GetBuffer()
+	 FShaderResourceViewRHIRef GetBuffer()
 	 {
-		return ReadPooled;
+		return readRef;
 	 }
 
 	//UObject Interface
@@ -64,28 +63,25 @@ public:
 	//UNiagaraDataInterface Interface
 };
 
-struct FNDIStructuredBufferInstanceData_GameThread
+struct FNDIStructuredBufferInstanceDataLegacy_GameThread
 {
-	//FNiagaraParameterDirectBinding<UObject*> UserParamBinding;
-	TRefCountPtr<FRDGPooledBuffer> ReadPooled;
-	//FRDGBufferSRVRef ReadScopedSRV;
+	FShaderResourceViewRHIRef readRef;
 	int32 numBoids;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-struct FNDIStructuredBufferInstanceData_RenderThread
+struct FNDIStructuredBufferInstanceDataLegacy_RenderThread
 {
-	TRefCountPtr<FRDGPooledBuffer> ReadPooled;
-	//FRDGBufferSRVRef ReadScopedSRV;
+	FShaderResourceViewRHIRef readRef;
 	int32 numBoids;
 };
 
-struct FNDIStructuredBufferProxy : public FNiagaraDataInterfaceProxy
+struct FNDIStructuredBufferProxyLegacy : public FNiagaraDataInterfaceProxy
 {
 	virtual void ConsumePerInstanceDataFromGameThread(void* PerInstanceData, const FNiagaraSystemInstanceID& Instance) override {}
 	virtual int32 PerInstanceDataPassedToRenderThreadSize() const override { return 0; }
 
 	// List of proxy data for each system instance
-	TMap<FNiagaraSystemInstanceID, FNDIStructuredBufferInstanceData_RenderThread> SystemInstancesToProxyData_RT;
+	TMap<FNiagaraSystemInstanceID, FNDIStructuredBufferInstanceDataLegacy_RenderThread> SystemInstancesToProxyData_RT;
 };

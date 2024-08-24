@@ -1,15 +1,11 @@
 #include "ComputeGBDrawer.h"
-#include "Kismet/GameplayStatics.h"
-#include "SceneRendering.h"
-#include "ScenePrivate.h"
 #include "ComputeGBExample.h"
 #include "ComputeShaders/BoidsCS.h"
 #include "ComputeShaders/BoidsDrawerCS.h"
 #include "PixelShaders/BoidsDrawerPS.h"
 #include "Engine/World.h"
-#include "NiagaraUserRedirectionParameterStore.h"
-#include "NiagaraDataInterfaceTexture.h"
 #include "Settings/ComputeExampleSettings.h"
+#include "NiagaraFunctionLibrary.h"
 
 DEFINE_LOG_CATEGORY(LogComputeGBDrawer);
 
@@ -129,16 +125,7 @@ bool AComputeGBDrawer::SetConstantParameters()
 		return false;
 	}
 
-	// Get the parameter store of the Niagara component
-	FNiagaraUserRedirectionParameterStore& ParameterStore = Niagara->GetOverrideParameters();
-
-	FNiagaraVariable TextureParameter = FNiagaraVariable(FNiagaraTypeDefinition(UNiagaraDataInterfaceTexture::StaticClass()), TEXT("boidPositions"));
-	UNiagaraDataInterfaceTexture* data = (UNiagaraDataInterfaceTexture*)ParameterStore.GetDataInterface(TextureParameter);
-
-	if (data)
-	{
-		data->Texture = RenderTarget;
-	}
+	UNiagaraFunctionLibrary::SetTextureObject(Niagara, "boidPositions", RenderTarget);
 
 	//const UComputeExampleSettings* computeExampleSettings = UComputeExampleSettings::GetComputeExampleSettings();
 	Niagara->SetIntParameter("numBoids", BoidCurrentParameters.ConstantParameters.numBoids);

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-class SHADERCORE_API FShaderCoreModule : public IModuleInterface
+class COMPUTECORE_API FComputeCoreModule : public IModuleInterface
 {
 public:
 
@@ -13,13 +13,13 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
-	static inline FShaderCoreModule& Get()
+	static inline FComputeCoreModule& Get()
 	{
-		return FModuleManager::LoadModuleChecked<FShaderCoreModule>("ShaderCore");
+		return FModuleManager::LoadModuleChecked<FComputeCoreModule>("ComputeCore");
 	}
 
 	static inline bool IsAvailable()
 	{
-		return FModuleManager::Get().IsModuleLoaded("ShaderCore");
+		return FModuleManager::Get().IsModuleLoaded("ComputeCore");
 	}
 };

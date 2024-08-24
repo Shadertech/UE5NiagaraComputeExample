@@ -5,7 +5,7 @@
 #include "CSGlobalLib.generated.h"
 
 USTRUCT(BlueprintType)
-struct SHADERCORE_API FBoundsConstantParameters
+struct COMPUTECORE_API FBoundsConstantParameters
 {
 	GENERATED_BODY()
 

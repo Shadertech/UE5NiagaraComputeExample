@@ -1,6 +1,7 @@
 # Niagara Compute Shader Example
 **Overview**:
 This project is an Unreal Engine 5 plugin that demonstrates compute shader integration with the Niagara particle system.
+There are a number of different ways this can be achieved. Each way has its own module.
 I hope that this repo is a good place to start playing with UE5 graph builder.
 
 Temaran has produced an awesome resource to learn compute shaders and I suggest checking it out if you havent already [UnrealEngineShaderPluginDemo](https://github.com/Temaran/UnrealEngineShaderPluginDemo)
@@ -40,10 +41,10 @@ Temaran has produced an awesome resource to learn compute shaders and I suggest 
 - **Overview**:
   - A boids system implemented entirely within Niagara without compute shaders and using the Particle Attribute Reader instead.
 
-### 5. ShaderCore
+### 5. ComputeCore
 
 - **Overview**:
-  - A shared module that provides default shader settings and utilities, ensuring consistency and efficiency across all modules.
+  - A shared module that provides default settings and utilities, ensuring consistency and efficiency across all modules.
 
 ## Prerequisites
 
@@ -76,3 +77,13 @@ Contributions to this project are welcome. Please follow the standard GitHub wor
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Release Notes
+
+### v0.1.1
+- Refactor
+- Fixed issues with niagara systems not always loading on first play
+- upgrading from v0.1.0 to v0.1.1 has breaking changes. SHADERCORE_API is now COMPUTECORE_API. "SHADERCORE_API UNiagaraDataInterfaceStructuredBufferLegacy" is now "C"OMPUTERPLEGACYEXAMPLE_API UNiagaraDataInterfaceStructuredBufferLegacy". Niagara has an issue finding the data interface even with a class redirect. If you have modfied the niagara actors then please remove any reference to the structured buffer NDIs before updating and reattach it again afterwards.
+
+### v0.1.0
+- Initial Release
