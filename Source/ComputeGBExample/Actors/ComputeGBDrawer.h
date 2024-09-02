@@ -7,6 +7,7 @@
 #include "Core/ManagedGBCSInterface.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "NiagaraComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "ComputeGBDrawer.generated.h"
 

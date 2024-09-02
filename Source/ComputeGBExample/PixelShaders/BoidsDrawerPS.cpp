@@ -1,6 +1,7 @@
 #include "BoidsDrawerPS.h"
 #include "CommonRenderResources.h"
 #include "TextureResource.h"
+#include "RHIStaticStates.h"
 
 // This will tell the engine to create the shader and where the shader entry point is.
 //                            ShaderType            ShaderPath           Shader function name Type

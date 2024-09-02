@@ -1,5 +1,6 @@
 #include "BoidsDrawerVS.h"
 #include "CommonRenderResources.h"
+#include "Containers/DynamicRHIResourceArray.h"
 
 // This will tell the engine to create the shader and where the shader entry point is.
 //                            ShaderType            ShaderPath           Shader function name Type
