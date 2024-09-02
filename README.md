@@ -83,7 +83,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ### v0.1.1
 - Refactor
 - Fixed issues with niagara systems not always loading on first play
-- upgrading from v0.1.0 to v0.1.1 has breaking changes. SHADERCORE_API is now COMPUTECORE_API. "SHADERCORE_API UNiagaraDataInterfaceStructuredBufferLegacy" is now "C"OMPUTERPLEGACYEXAMPLE_API UNiagaraDataInterfaceStructuredBufferLegacy". Niagara has an issue finding the data interface even with a class redirect. If you have modfied the niagara actors then please remove any reference to the structured buffer NDIs before updating and reattach it again afterwards.
+- upgrading from v0.1.0 to v0.1.1 has breaking changes. SHADERCORE_API is now COMPUTECORE_API. "SHADERCORE_API UNiagaraDataInterfaceStructuredBufferLegacy" is now "COMPUTERPLEGACYEXAMPLE_API UNiagaraDataInterfaceStructuredBufferLegacy". Niagara has an issue finding the data interface even with a class redirect. If you have modfied the niagara actors then please remove any reference to the structured buffer NDIs before updating and reattach it again afterwards.
 
 ### v0.1.0
 - Initial Release
