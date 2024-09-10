@@ -61,7 +61,7 @@ To integrate this plugin into your Unreal Engine project:
 3. Rebuild project files from your .uproject
 4. Enable the plugin within your project settings via the Plugins menu.
 5. Open Maps/M_TestLab (persistent map)
-6. Toggle examples by activating/deactivated sub levels from the persistent level. All examples are always loaded by default.
+6. Toggle examples by activating/deactivating sub levels from the persistent level. All examples are set to always-loaded by default. Setting them to blueprint-only will unload them.
 7. Configure boids parameters through Compute Example Settings inside Project Settings. Please assign the niagara systems as follows.
 
 ![boidsSettings](https://github.com/Shadertech/UE5NiagaraComputeExample/assets/1611567/45ec09b0-277f-40cd-9306-2d41c6b83065)
