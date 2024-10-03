@@ -60,9 +60,9 @@ To integrate this plugin into your Unreal Engine project:
 6. Toggle examples by activating/deactivating sub-levels from the persistent level. You can launch each map individually, or mark them all as "always loaded" to run them all together.
 7. Configure boids parameters through Compute Example Settings inside Project Settings. Please assign the Niagara systems as follows.
 
-![boidsSettings](https://github.com/user-attachments/assets/d9e188b1-74c2-4512-a498-26632f82a1e4)
+![boidsSettings](https://github.com/user-attachments/assets/54758ba8-a390-49e2-beb9-9bfc7977a24b)
 
-![subLevels](https://github.com/user-attachments/assets/e77bb266-a479-4f34-946f-f5c3817cbef6)
+![subLevels](https://github.com/user-attachments/assets/4e8d3a40-5799-4aee-802d-34d79005b3ca)
 
 8. Enjoy. You can play with the compute example settings even in runtime. :)
 
