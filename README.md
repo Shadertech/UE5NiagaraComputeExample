@@ -57,12 +57,12 @@ To integrate this plugin into your Unreal Engine project:
 3. Rebuild project files from your .uproject
 4. Enable the plugin within your project settings via the Plugins menu.
 5. Open Maps/M_TestLab (persistent map)
-6. Toggle examples by activating/deactivating sub levels from the persistent level. You can launch each map individually, or mark them all as "always loaded" to run them all together.
-7. Configure boids parameters through Compute Example Settings inside Project Settings. Please assign the niagara systems as follows.
+6. Toggle examples by activating/deactivating sub-levels from the persistent level. You can launch each map individually, or mark them all as "always loaded" to run them all together.
+7. Configure boids parameters through Compute Example Settings inside Project Settings. Please assign the Niagara systems as follows.
 
-![boidsSettings](https://github.com/Shadertech/UE5NiagaraComputeExample/assets/1611567/45ec09b0-277f-40cd-9306-2d41c6b83065)
+![boidsSettings](https://github.com/user-attachments/assets/ea2995a2-a843-40cd-b4fa-172a3ac66f22)
 
-![subLevels](https://github.com/user-attachments/assets/132b7b29-eed2-44d5-bad8-8cb4f3095790)
+![subLevels](https://github.com/user-attachments/assets/8fb37121-cfc6-4853-bcf8-dce8565ea9ff)
 
 8. Enjoy. You can play with the compute example settings even in runtime. :)
 
@@ -77,8 +77,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Release Notes
 
 ### v0.1.2
-- Refactor (wont be an easy upgrade if you have extended a lot of the logic from the last version a I renamed a lot of files and folders)
-- Structured Buffer -> Niagaga + Material
+- Refactor (won't be an easy upgrade if you have extended a lot of the logic from the last version as I renamed a lot of files and folders)
+- Structured Buffer -> Niagara + Material
 
 ### v0.1.1
 - Refactor
