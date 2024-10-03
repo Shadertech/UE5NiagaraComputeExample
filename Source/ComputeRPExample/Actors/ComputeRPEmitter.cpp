@@ -1,9 +1,8 @@
 #include "ComputeRPEmitter.h"
-#include "ComputeShaders/BoidsRPCS.h"
+#include "GraphBuilder/BoidsGB.h"
 #include "Settings/ComputeExampleSettings.h"
 #include "Niagara/NDIStructuredBufferFunctionLibrary.h"
 
-#define BoidsExample_ThreadsPerGroup 512
 DEFINE_LOG_CATEGORY(LogComputeRPEmitter);
 
 // ____________________________________________ Constructor
@@ -20,13 +19,6 @@ AComputeRPEmitter::AComputeRPEmitter()
 void AComputeRPEmitter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	cachedRPCSManager = ARPCSManager::Get(GetWorld());
-
-	if (cachedRPCSManager != nullptr)
-	{
-		cachedRPCSManager->Register(this);
-	}
 }
 
 // ____________________________________________ BeginDestroy
@@ -38,15 +30,22 @@ void AComputeRPEmitter::BeginDestroy()
 		Niagara->DeactivateImmediate();
 	}
 	Super::BeginDestroy();
-	if (cachedRPCSManager != nullptr)
-	{
-		cachedRPCSManager->Deregister(this);
-	}
 }
 
 // ____________________________________________ DisposeComputeShader
 void AComputeRPEmitter::DisposeComputeShader_GameThread()
 {
+	check(IsInGameThread());
+	Super::DisposeComputeShader_GameThread();
+}
+
+void AComputeRPEmitter::DisposeComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList)
+{
+	check(IsInRenderingThread());
+
+	Super::DisposeComputeShader_RenderThread(RHICmdList);
+
+	BoidsPingPongBuffer.Dispose();
 }
 
 // ____________________________________________ Init Compute Shader
@@ -55,13 +54,14 @@ void AComputeRPEmitter::InitComputeShader_GameThread()
 {
 	check(IsInGameThread());
 
+	Super::InitComputeShader_GameThread();
+
 	BoundsMatrix = FMatrix::Identity.ConcatTranslation(GetActorLocation());
 	BoidsArray.Empty(); // Clear any existing elements in the array
 
 	BoidsPingPongBuffer = FPingPongBuffer();
 
-	const UComputeExampleSettings* computeExampleSettings = UComputeExampleSettings::GetComputeExampleSettings();
-	Niagara->SetAsset(computeExampleSettings->BoidsEmitterVFX.LoadSynchronous());
+	Niagara->SetAsset(GetNiagaraSystem().LoadSynchronous());
 
 	if (SetConstantParameters() && SetDynamicParameters())
 	{
@@ -73,58 +73,15 @@ void AComputeRPEmitter::InitComputeShader_RenderThread(FRHICommandListImmediate&
 {
 	check(IsInRenderingThread());
 
+	Super::InitComputeShader_RenderThread(RHICmdList);
+
 	FRDGBuilder GraphBuilder(RHICmdList);
 
-	FString OwnerName = "ComputeRPEmitter";
+	BoidsRenderGraphPasses.ClearPasses();
 
-	const TCHAR* ReadBufferName = *(FString(OwnerName) + TEXT("BoidsInBuffer"));
-	const TCHAR* WriteBufferName = *(FString(OwnerName) + TEXT("BoidsOutBuffer"));
-	const TCHAR* SRVName = *(FString(OwnerName) + TEXT("BoidsIn_StructuredBuffer"));
-	const TCHAR* UAVName = *(FString(OwnerName) + TEXT("BoidsOut_StructuredBuffer"));
+	FGraphBullder_Boids::InitBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidsArray, BoidCurrentParameters, BoidsRenderGraphPasses, BoidsPingPongBuffer);
 
-	// First we create an RDG buffer with the appropriate size, and then instruct the graph to upload our CPU data to it.
-	FRDGBufferDesc ReadDesc = FRDGBufferDesc::CreateStructuredDesc(BoidsArray.GetTypeSize(), BoidsArray.Num());
-	FRDGBufferRef ReadBuffer = GraphBuilder.CreateBuffer(ReadDesc, ReadBufferName);
-	GraphBuilder.QueueBufferUpload(ReadBuffer, BoidsArray.GetData(), BoidsArray.GetTypeSize() * BoidsArray.Num(), ERDGInitialDataFlags::None);
-
-	FRDGBufferDesc WriteDesc = FRDGBufferDesc::CreateStructuredDesc(BoidsArray.GetTypeSize(), BoidsArray.Num());
-	FRDGBufferRef WriteBuffer = GraphBuilder.CreateBuffer(WriteDesc, WriteBufferName);
-	GraphBuilder.QueueBufferUpload(WriteBuffer, BoidsArray.GetData(), BoidsArray.GetTypeSize() * BoidsArray.Num(), ERDGInitialDataFlags::None);
-
-	BoidsPingPongBuffer.ReadPooled = GraphBuilder.ConvertToExternalBuffer(ReadBuffer);
-	BoidsPingPongBuffer.WritePooled = GraphBuilder.ConvertToExternalBuffer(WriteBuffer);
-
-	BoidsPingPongBuffer.RegisterRW(GraphBuilder, SRVName, UAVName);
-
-	QUICK_SCOPE_CYCLE_COUNTER(STAT_ComputeRPExample_Init); // Used to gather CPU profiling data for Unreal Insights.
-	SCOPED_DRAW_EVENT(RHICmdList, ComputeRPExample_Init); // Used to profile GPU activity and add metadata to be consumed by for example RenderDoc
-
-	FBoidsRPInitExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FBoidsRPInitExampleCS::FParameters>();
-	PassParameters->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
-	PassParameters->maxSpeed = BoidCurrentParameters.DynamicParameters.maxSpeed;
-	PassParameters->boidsOut = BoidsPingPongBuffer.WriteScopedUAV;
-
-	PassParameters->boundsInverseMatrix = BoidCurrentParameters.inverseTransformMatrix;
-	PassParameters->boundsMatrix = BoidCurrentParameters.transformMatrix;
-	PassParameters->boundsRadius = BoidCurrentParameters.boundsRadius;
-
-	PassParameters->randSeed = FMath::Rand() % (INT32_MAX + 1);
-
-	TShaderMapRef<FBoidsRPInitExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
-
-	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidCurrentParameters.ConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
-
-	FComputeShaderUtils::AddPass(GraphBuilder,
-		RDG_EVENT_NAME("RP_InitBoidsExample"),
-		ERDGPassFlags::Compute | ERDGPassFlags::NeverCull,
-		ComputeShader,
-		PassParameters,
-		GroupCounts);
-
-	GraphBuilder.QueueBufferExtraction(BoidsPingPongBuffer.WriteScopedRef, &BoidsPingPongBuffer.ReadPooled);
 	GraphBuilder.Execute();
-
-	/*BoidsPingPongBuffer.PingPong(GraphBuilder);*/
 }
 
 // ____________________________________________ Execute Compute Shader
@@ -133,7 +90,7 @@ void AComputeRPEmitter::ExecuteComputeShader_GameThread(float DeltaTime)
 {
 	check(IsInGameThread());
 
-	LastDeltaTime = DeltaTime;
+	Super::ExecuteComputeShader_GameThread(DeltaTime);
 
 	SetDynamicParameters();
 }
@@ -142,49 +99,22 @@ void AComputeRPEmitter::ExecuteComputeShader_RenderThread(FRHICommandListImmedia
 {
 	check(IsInRenderingThread());
 
+	Super::ExecuteComputeShader_RenderThread(RHICmdList);
+
 	FRDGBuilder GraphBuilder(RHICmdList);
 
-	QUICK_SCOPE_CYCLE_COUNTER(STAT_ComputeRPExample_Dispatch); // Used to gather CPU profiling data for Unreal Insights.
-	SCOPED_DRAW_EVENT(GraphBuilder.RHICmdList, ComputeRPExample_Compute); // Used to profile GPU activity and add metadata to be consumed by for example RenderDoc
+	BoidsRenderGraphPasses.ClearPasses();
 
-	FString OwnerName = "ComputeRPEmitter";
-	const TCHAR* SRVName = *(FString(OwnerName) + TEXT("BoidsIn_StructuredBuffer"));
-	const TCHAR* UAVName = *(FString(OwnerName) + TEXT("BoidsOut_StructuredBuffer"));
-	BoidsPingPongBuffer.RegisterRW(GraphBuilder, SRVName, UAVName);
+	FGraphBullder_Boids::ExecuteBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidCurrentParameters, BoidsRenderGraphPasses, BoidsPingPongBuffer, LastDeltaTime);
 
-	FBoidsRPUpdateExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FBoidsRPUpdateExampleCS::FParameters>();
-	PassParameters->numBoids = BoidCurrentParameters.ConstantParameters.numBoids;
-	PassParameters->deltaTime = LastDeltaTime * BoidCurrentParameters.DynamicParameters.simulationSpeed;
-	PassParameters->boidsIn = BoidsPingPongBuffer.ReadScopedSRV;
-	PassParameters->boidsOut = BoidsPingPongBuffer.WriteScopedUAV;
-
-	PassParameters->boundsInverseMatrix = BoidCurrentParameters.inverseTransformMatrix;
-	PassParameters->boundsMatrix = BoidCurrentParameters.transformMatrix;
-	PassParameters->boundsRadius = BoidCurrentParameters.boundsRadius;
-
-	PassParameters->minSpeed = BoidCurrentParameters.DynamicParameters.minSpeed();
-	PassParameters->maxSpeed = BoidCurrentParameters.DynamicParameters.maxSpeed;
-	PassParameters->turnSpeed = BoidCurrentParameters.DynamicParameters.turnSpeed();
-	PassParameters->minDistance = BoidCurrentParameters.DynamicParameters.minDistance;
-	PassParameters->minDistanceSq = BoidCurrentParameters.DynamicParameters.minDistanceSq();
-	PassParameters->cohesionFactor = BoidCurrentParameters.DynamicParameters.cohesionFactor;
-	PassParameters->separationFactor = BoidCurrentParameters.DynamicParameters.separationFactor;
-	PassParameters->alignmentFactor = BoidCurrentParameters.DynamicParameters.alignmentFactor;
-
-	TShaderMapRef<FBoidsRPUpdateExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
-	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidCurrentParameters.ConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
-	FComputeShaderUtils::AddPass(GraphBuilder,
-		RDG_EVENT_NAME("RP_BoidsUpdateExample"),
-		ERDGPassFlags::Compute | ERDGPassFlags::NeverCull,
-		ComputeShader,
-		PassParameters,
-		GroupCounts);
-
-	//AddCopyBufferPass(GraphBuilder, BoidsPingPongBuffer.WriteScopedRef, BoidsPingPongBuffer.ReadScopedRef);
-	GraphBuilder.QueueBufferExtraction(BoidsPingPongBuffer.WriteScopedRef, &BoidsPingPongBuffer.ReadPooled);
 	GraphBuilder.Execute();
 }
 
+TSoftObjectPtr<UNiagaraSystem> AComputeRPEmitter::GetNiagaraSystem() const
+{
+	const UComputeExampleSettings* computeExampleSettings = UComputeExampleSettings::GetComputeExampleSettings();
+	return computeExampleSettings->BoidsEmitterVFX;
+}
 
 bool AComputeRPEmitter::SetConstantParameters()
 {

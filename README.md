@@ -10,31 +10,27 @@ Temaran has produced an awesome resource to learn compute shaders and I suggest 
 
 ## Modules
 
-### 1. ComputeGBExample
+### 1. ComputeRPExample
 
 - **Overview**:
-  - Demonstrates the use of Graph Builder to setup and run compute shaders through a boids example as part of the PreRender pass
-  - `GEngine->GetPreRenderDelegateEx`
+  - Demonstrates the use of Graph Builder to setup and run compute shaders through a boids example
 - **Examples**:
   - Example1: Structured Buffer -> Niagara
   - Example2: Structured Buffer -> Render Target -> Niagara
-  - Example3: Structured Buffer -> Instanced Static Meshes (WIP AND PRIVATISED)
 
-### 2. ComputeRPExample
+### 2. ComputeRPLegacyExample
 
 - **Overview**:
-  - Demonstrates the use of Graph Builder to setup and run compute shaders through a boids example as part of a custom pass
-  - `ENQUEUE_RENDER_COMMAND`
+  - Demonstrates the use of manual management over the compute pipeline to setup and run compute shaders through a boids example
 - **Examples**:
   - Example1: Structured Buffer -> Niagara
 
-### 3. ComputeRPLegacyExample
+### 3. ComputeRPSUBExample
 
 - **Overview**:
-  - Demonstrates the use of Graph Builder to setup and run compute shaders through a boids example as part of a custom pass through legacy methods of binding shader paramaters
-  - `ENQUEUE_RENDER_COMMAND`
+  - Demonstrates how to extend ComputeRPExample in order to pass shader data into materials by hooking into the scene buffer
 - **Examples**:
-  - Example1: Structured Buffer -> Niagara
+  - Example1: Structured Buffer -> Material
 
 ### 4. NiagaraExample
 
@@ -61,7 +57,7 @@ To integrate this plugin into your Unreal Engine project:
 3. Rebuild project files from your .uproject
 4. Enable the plugin within your project settings via the Plugins menu.
 5. Open Maps/M_TestLab (persistent map)
-6. Toggle examples by activating/deactivating sub levels from the persistent level. All examples are set to always-loaded by default. Setting them to blueprint-only will unload them.
+6. Toggle examples by activating/deactivating sub levels from the persistent level. You can launch each map individually, or mark them all as "always loaded" to run them all together.
 7. Configure boids parameters through Compute Example Settings inside Project Settings. Please assign the niagara systems as follows.
 
 ![boidsSettings](https://github.com/Shadertech/UE5NiagaraComputeExample/assets/1611567/45ec09b0-277f-40cd-9306-2d41c6b83065)
@@ -80,10 +76,12 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Release Notes
 
+### v0.1.2
+- Refactor (wont be an easy upgrade if you have extended a lot of the logic from the last version a I renamed a lot of files and folders)
+- Structured Buffer -> Niagaga + Material
+
 ### v0.1.1
 - Refactor
-- Fixed issues with niagara systems not always loading on first play
-- upgrading from v0.1.0 to v0.1.1 has breaking changes. SHADERCORE_API is now COMPUTECORE_API. "SHADERCORE_API UNiagaraDataInterfaceStructuredBufferLegacy" is now "COMPUTERPLEGACYEXAMPLE_API UNiagaraDataInterfaceStructuredBufferLegacy". Niagara has an issue finding the data interface even with a class redirect. If you have modfied the niagara actors then please remove any reference to the structured buffer NDIs before updating and reattach it again afterwards.
 
 ### v0.1.0
 - Initial Release

@@ -8,16 +8,13 @@
 #include "DataDrivenShaderPlatformInfo.h"
 
 #include "Base/ComputeActorBase.h"
-#include "Core/ManagedRPCSInterface.h"
-#include "RPCSManager.h"
-#include "RHICommandList.h"
 
 #include "ComputeRPEmitter.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogComputeRPEmitter, Log, All);
 
 UCLASS()
-class COMPUTERPEXAMPLE_API AComputeRPEmitter : public AComputeActorBase, public IManagedRPCSInterface
+class COMPUTERPEXAMPLE_API AComputeRPEmitter : public AComputeActorBase
 {
 	GENERATED_BODY()
 
@@ -27,19 +24,23 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void BeginDestroy() override;
-	virtual void DisposeComputeShader_GameThread() override;
 
-protected:
-	bool SetConstantParameters();
-	bool SetDynamicParameters();
-
-public:
-	// Managed Compute Shader Interface 
+	// Start Managed Compute Shader Interface 
 	virtual void InitComputeShader_GameThread() override;
 	virtual void InitComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList) override;
 
 	virtual void ExecuteComputeShader_GameThread(float DeltaTime) override;
 	virtual void ExecuteComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList) override;
+
+	virtual void DisposeComputeShader_GameThread() override;
+	virtual void DisposeComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList) override;
+	// End Managed Compute Shader Interface
+
+protected:
+	virtual bool SetConstantParameters();
+	virtual bool SetDynamicParameters();
+
+	virtual FString GetOwnerName() const override;
 
 protected:
 	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Boid Parameters")
@@ -48,16 +49,19 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boids")
 	TArray<FBoidItem> BoidsArray;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Niagara")
+	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Niagara")
 	UNiagaraComponent* Niagara = nullptr;
 
-private:
-	UPROPERTY(Transient)
-	ARPCSManager* cachedRPCSManager = nullptr;
-
 	FPingPongBuffer BoidsPingPongBuffer;
+	FBoidsRenderGraphPasses BoidsRenderGraphPasses;
 
+	virtual TSoftObjectPtr<UNiagaraSystem> GetNiagaraSystem() const;
+
+private:
 	FMatrix BoundsMatrix;
-
-	float LastDeltaTime = 0.0f;
 };
+
+inline FString AComputeRPEmitter::GetOwnerName() const
+{
+	return "ComputeRPEmitter";
+}

@@ -6,6 +6,10 @@
 #include "RenderGraphDefinitions.h"
 #include "BoidsLib.generated.h"
 
+/// <summary>
+/// PADDING IS IMPORTANT FOR SCENE VIEW
+/// </summary>
+
 USTRUCT(BlueprintType)
 struct COMPUTECORE_API FBoidItem
 {
@@ -16,8 +20,10 @@ public:
 	FVector3f pos = FVector3f(0.0f, 0.0f, 0.0f);
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BoidItem")
 	FVector3f vel = FVector3f(0.0f, 0.0f, 0.0f);
+	int32 padd0 = 0;
+	int32 padd1 = 0;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BoidItem")
-	FVector3f col = FVector3f(0.0f, 0.0f, 0.0f);
+	FVector4f col = FVector4f(0.0f, 0.0f, 0.0f, 0.0f);
 };
 
 //struct FBoidItem

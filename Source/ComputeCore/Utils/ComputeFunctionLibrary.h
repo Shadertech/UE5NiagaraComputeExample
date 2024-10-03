@@ -16,6 +16,12 @@ class COMPUTECORE_API UComputeFunctionLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 	
 public:
+	static FRDGBufferRef CreateStructuredBuffer(
+		FRDGBuilder& GraphBuilder,
+		const TCHAR* Name,
+		uint32 BytesPerElement, 
+		uint32 NumElements);
+
 	static void RegisterSRV(
 		FRDGBuilder& GraphBuilder,
 		TRefCountPtr<FRDGPooledBuffer> buffer,
@@ -29,4 +35,7 @@ public:
 		FString name,
 		FRDGBufferRef& outRDGRef,
 		FRDGBufferUAVRef& outUAVRef);
+
+	UFUNCTION(BlueprintPure, Category = "ComputeExample", meta = (BlueprintThreadSafe, WorldContext = "WorldContextObject"))
+	static bool IsPlaying(const UObject* WorldContextObject);
 };

@@ -1,10 +1,11 @@
 #include "BoidsRPCS.h"
+#include "DataDrivenShaderPlatformInfo.h"
 
 #define BoidsExample_ThreadsPerGroup 512
 
 // This will tell the engine to create the shader and where the shader entry point is.
 //                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FBoidsRPInitExampleCS, "/ComputeExample/CS_Boids.usf", "GenerateBoids", SF_Compute);
+IMPLEMENT_GLOBAL_SHADER(FBoidsRPInitExampleCS, "/ComputeRPExample/CS_Boids.usf", "GenerateBoids", SF_Compute);
 
 bool FBoidsRPInitExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
 {
@@ -23,7 +24,7 @@ void FBoidsRPInitExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPerm
 
 // This will tell the engine to create the shader and where the shader entry point is.
 //                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FBoidsRPUpdateExampleCS, "/ComputeExample/CS_Boids.usf", "UpdateBoids", SF_Compute);
+IMPLEMENT_GLOBAL_SHADER(FBoidsRPUpdateExampleCS, "/ComputeRPExample/CS_Boids.usf", "UpdateBoids", SF_Compute);
 
 bool FBoidsRPUpdateExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
 {
@@ -42,7 +43,7 @@ void FBoidsRPUpdateExampleCS::ModifyCompilationEnvironment(const FGlobalShaderPe
 
 // This will tell the engine to create the shader and where the shader entry point is.
 //                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FBoidsRPCopyBufferExampleCS, "/ComputeExample/CS_BoidsCopyBuffer.usf", "CopyBuffer", SF_Compute);
+IMPLEMENT_GLOBAL_SHADER(FBoidsRPCopyBufferExampleCS, "/ComputeRPExample/CS_BoidsCopyBuffer.usf", "CopyBuffer", SF_Compute);
 
 bool FBoidsRPCopyBufferExampleCS::ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
 {

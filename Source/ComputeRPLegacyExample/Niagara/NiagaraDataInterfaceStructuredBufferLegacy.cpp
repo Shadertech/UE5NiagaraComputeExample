@@ -9,7 +9,7 @@
 
 #include "Data/BoidsLib.h"
 
-static const TCHAR* TemplateShaderFileLegacy = TEXT("/ComputeExample/Niagara/NiagaraDataInterfaceStructuredBufferTemplate.ush");
+static const TCHAR* TemplateShaderFileLegacy = TEXT("/ComputeCore/Niagara/NiagaraDataInterfaceStructuredBufferTemplate.ush");
 
 struct FStructuredBufferAttributeLegacy
 {

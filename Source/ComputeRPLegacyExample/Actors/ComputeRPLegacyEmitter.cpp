@@ -4,6 +4,7 @@
 #include "ScenePrivate.h"
 #include "ComputeShaders/BoidsRPLegacyCS.h"
 #include "Settings/ComputeExampleSettings.h"
+#include "DataDrivenShaderPlatformInfo.h"
 #include "Niagara/NDIStructuredBufferLegacyFunctionLibrary.h"
 
 #define BoidsExample_ThreadsPerGroup 512
@@ -23,13 +24,6 @@ AComputeRPLegacyEmitter::AComputeRPLegacyEmitter()
 void AComputeRPLegacyEmitter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	cachedRPCSManager = ARPCSManager::Get(GetWorld());
-
-	if (cachedRPCSManager != nullptr)
-	{
-		cachedRPCSManager->Register(this);
-	}
 }
 
 // ____________________________________________ BeginDestroy
@@ -41,15 +35,36 @@ void AComputeRPLegacyEmitter::BeginDestroy()
 		Niagara->DeactivateImmediate();
 	}
 	Super::BeginDestroy();
-	if (cachedRPCSManager != nullptr)
-	{
-		cachedRPCSManager->Deregister(this);
-	}
 }
 
 // ____________________________________________ DisposeComputeShader
 void AComputeRPLegacyEmitter::DisposeComputeShader_GameThread()
 {
+	Super::DisposeComputeShader_GameThread();
+}
+
+void AComputeRPLegacyEmitter::DisposeComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList)
+{
+	check(IsInRenderingThread());
+
+	Super::DisposeComputeShader_RenderThread(RHICmdList);
+
+	if (readBuffer->IsValid())
+	{
+		readBuffer = nullptr;
+	}
+	if (writeBuffer->IsValid())
+	{
+		writeBuffer = nullptr;
+	}
+	if (readRef->IsValid())
+	{
+		readRef = nullptr;
+	}
+	if (writeRef->IsValid())
+	{
+		writeRef = nullptr;
+	}
 }
 
 // ____________________________________________ Init Compute Shader
@@ -57,6 +72,8 @@ void AComputeRPLegacyEmitter::DisposeComputeShader_GameThread()
 void AComputeRPLegacyEmitter::InitComputeShader_GameThread()
 {
 	check(IsInGameThread());
+
+	Super::InitComputeShader_GameThread();
 
 	BoundsMatrix = FMatrix::Identity.ConcatTranslation(GetActorLocation());
 	BoidsArray.Empty(); // Clear any existing elements in the array
@@ -73,6 +90,8 @@ void AComputeRPLegacyEmitter::InitComputeShader_GameThread()
 void AComputeRPLegacyEmitter::InitComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList)
 {
 	check(IsInRenderingThread());
+
+	Super::InitComputeShader_RenderThread(RHICmdList);
 
 	TShaderMapRef<FBoidsRPInitLegacyExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
 	FRHIComputeShader* ShaderRHI = ComputeShader.GetComputeShader();
@@ -125,7 +144,7 @@ void AComputeRPLegacyEmitter::ExecuteComputeShader_GameThread(float DeltaTime)
 {
 	check(IsInGameThread());
 
-	LastDeltaTime = DeltaTime;
+	Super::ExecuteComputeShader_GameThread(DeltaTime);
 
 	SetDynamicParameters();
 }
@@ -133,6 +152,8 @@ void AComputeRPLegacyEmitter::ExecuteComputeShader_GameThread(float DeltaTime)
 void AComputeRPLegacyEmitter::ExecuteComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList)
 {
 	check(IsInRenderingThread());
+
+	Super::ExecuteComputeShader_RenderThread(RHICmdList);
 
 	TShaderMapRef<FBoidsRPUpdateLegacyExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
 	FRHIComputeShader* ShaderRHI = ComputeShader.GetComputeShader();

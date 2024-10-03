@@ -2,6 +2,7 @@
 
 
 #include "Base/ComputeActorBase.h"
+#include "Utils/ComputeFunctionLibrary.h"
 
 // Sets default values
 AComputeActorBase::AComputeActorBase()
@@ -24,13 +25,23 @@ AComputeActorBase::AComputeActorBase()
 void AComputeActorBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	cachedRPCSManager = URPCSManager::Get(GetWorld());
+
+	if (cachedRPCSManager != nullptr)
+	{
+		cachedRPCSManager->Register(this);
+	}
 }
 
 // Called when the game ends or when destroyed
 void AComputeActorBase::BeginDestroy()
 {
 	Super::BeginDestroy();
+	if (cachedRPCSManager != nullptr)
+	{
+		cachedRPCSManager->Deregister(this);
+	}
 
 }
 
@@ -40,9 +51,11 @@ void AComputeActorBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 #if WITH_EDITOR
-	//UE_LOG(LogBoids, Log, TEXT("bDebug %d, IsSelected() %d"), bDebug ? 1 : 0, IsSelected()? 1 : 0);
+	bool IsPlaying = UComputeFunctionLibrary::IsPlaying(this);
 
-	if (bDebugSprite)
+	bool CanDebug = !IsPlaying || (IsPlaying && bDebugDisplayInRuntime);
+
+	if (bDebugSprite && CanDebug)
 	{
 		Billboard->SetHiddenInGame(false, true);
 		Billboard->SetVisibility(true);
@@ -52,28 +65,26 @@ void AComputeActorBase::Tick(float DeltaTime)
 		Billboard->SetVisibility(false);
 	}
 
-	if (bDebugBounds || IsSelected())
+	if (bPreviouslySelected && !IsSelected())
 	{
-		
-		//UE_LOG(LogBoids, Log, TEXT("Draw"));
+		OnUnselected();
+	}
+	bPreviouslySelected = false;
 
-		FColor Color = BoundsColor;
+	if ((bDebugBounds && CanDebug) || IsSelected())
+	{
+		CurrentBoundsColor = BoundsColor;
 
-		if (!IsSelected())
-		{
-			Color.R = FMath::RoundToInt(Color.R * 0.5f);
-			Color.G = FMath::RoundToInt(Color.G * 0.5f);
-			Color.B = FMath::RoundToInt(Color.B * 0.5f);
-		}
+		SelectedTick();
 
 		if (BoundsConstantParameters.bSphere)
 		{
-			int32 Segments = 8;
-			DrawDebugSphere(GetWorld(), GetActorLocation(), BoundsConstantParameters.Radius, Segments, Color);
+			int32 Segments = 12;
+			DrawDebugSphere(GetWorld(), GetActorLocation(), BoundsConstantParameters.Radius, Segments, CurrentBoundsColor);
 		}
 		else
 		{
-			DrawDebugBox(GetWorld(), GetActorLocation(), BoundsConstantParameters.BoundsExtent, Color);
+			DrawDebugBox(GetWorld(), GetActorLocation(), BoundsConstantParameters.BoundsExtent, CurrentBoundsColor);
 		}
 	}
 
@@ -86,4 +97,40 @@ bool AComputeActorBase::ShouldTickIfViewportsOnly() const
 	// Tick in Editor
 	return true;
 }
+
+void AComputeActorBase::SelectedTick()
+{
+	if (!IsSelected())
+	{
+		CurrentBoundsColor.R = FMath::RoundToInt(CurrentBoundsColor.R * 0.5f);
+		CurrentBoundsColor.G = FMath::RoundToInt(CurrentBoundsColor.G * 0.5f);
+		CurrentBoundsColor.B = FMath::RoundToInt(CurrentBoundsColor.B * 0.5f);
+		return;
+	}
+
+	if (!bPreviouslySelected)
+	{
+		OnSelected();
+	}
+	bPreviouslySelected = true;
+}
+
+void AComputeActorBase::OnSelected() {}
+void AComputeActorBase::OnUnselected() {}
 #endif
+
+// Start Managed Compute Shader Interface 
+void AComputeActorBase::InitComputeShader_GameThread() {}
+void AComputeActorBase::InitComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList) {}
+
+void AComputeActorBase::ExecuteComputeShader_GameThread(float DeltaTime)
+{
+	check(IsInGameThread());
+
+	LastDeltaTime = DeltaTime;
+}
+void AComputeActorBase::ExecuteComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList) {}
+
+void AComputeActorBase::DisposeComputeShader_GameThread() {}
+void AComputeActorBase::DisposeComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList) {}
+// End Managed Compute Shader Interface 

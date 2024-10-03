@@ -6,8 +6,9 @@
 #include "NiagaraShaderParametersBuilder.h"
 #include "NiagaraSystemInstance.h"
 #include "RenderGraphBuilder.h"
+#include "Utils/ComputeFunctionLibrary.h"
 
-static const TCHAR* TemplateShaderFile = TEXT("/ComputeExample/Niagara/NiagaraDataInterfaceStructuredBufferTemplate.ush");
+static const TCHAR* TemplateShaderFile = TEXT("/ComputeCore/Niagara/NiagaraDataInterfaceStructuredBufferTemplate.ush");
 
 struct FStructuredBufferAttribute
 {
@@ -100,8 +101,9 @@ void UNiagaraDataInterfaceStructuredBuffer::SetShaderParameters(const FNiagaraDa
 		if (InstanceData_RT->ReadPooled != nullptr
 			&& InstanceData_RT->numBoids > 0)
 		{
-			FRDGBufferRef ReadScopedRef = GraphBuilder.RegisterExternalBuffer(InstanceData_RT->ReadPooled, TEXT("Niagara_BoidsIn_StructuredBuffer"), ERDGBufferFlags::MultiFrame);
-			FRDGBufferSRVRef ReadScopedSRV = GraphBuilder.CreateSRV(ReadScopedRef);
+			FRDGBufferRef ReadScopedRef;
+			FRDGBufferSRVRef ReadScopedSRV;
+			UComputeFunctionLibrary::RegisterSRV(GraphBuilder, InstanceData_RT->ReadPooled, TEXT("Niagara_BoidsIn_StructuredBuffer"), ReadScopedRef, ReadScopedSRV);
 			Parameters->boidsIn = ReadScopedSRV;
 			Parameters->numBoids = InstanceData_RT->numBoids;
 			return;

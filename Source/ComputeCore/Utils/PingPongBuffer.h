@@ -36,4 +36,32 @@ struct FPingPongBuffer
 		UComputeFunctionLibrary::RegisterSRV(GraphBuilder, ReadPooled, readName, ReadScopedRef, ReadScopedSRV);
 		UComputeFunctionLibrary::RegisterUAV(GraphBuilder, WritePooled, writeName, WriteScopedRef, WriteScopedUAV);
 	}
+
+	void RegisterR(FRDGBuilder& GraphBuilder, FString readName)
+	{
+		UComputeFunctionLibrary::RegisterSRV(GraphBuilder, ReadPooled, readName, ReadScopedRef, ReadScopedSRV);
+	}
+
+	void RegisterW(FRDGBuilder& GraphBuilder, FString writeName)
+	{
+		UComputeFunctionLibrary::RegisterUAV(GraphBuilder, WritePooled, writeName, WriteScopedRef, WriteScopedUAV);
+	}
+
+	void Dispose()
+	{
+		if (ReadPooled.IsValid())
+		{
+			ReadPooled.SafeRelease();
+		}
+
+		if (WritePooled.IsValid())
+		{
+			WritePooled.SafeRelease();
+		}
+
+		ReadScopedRef = nullptr;
+		WriteScopedRef = nullptr;
+		ReadScopedSRV = nullptr;
+		WriteScopedUAV = nullptr;
+	}
 };

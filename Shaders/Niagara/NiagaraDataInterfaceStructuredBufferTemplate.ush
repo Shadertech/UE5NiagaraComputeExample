@@ -1,5 +1,5 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
-#include "/ComputeExample/CS_BoidsStruct.ush"
+#include "/ComputeCore/Libs/BoidsStruct.ush"
 
 StructuredBuffer<FBoidItem> {ParameterName}_boidsIn;
 int {ParameterName}_numBoids;

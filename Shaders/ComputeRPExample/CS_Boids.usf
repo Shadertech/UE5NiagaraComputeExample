@@ -1,0 +1,196 @@
+#include "/Engine/Public/Platform.ush"
+#include "/ComputeCore/Libs/BoidsStruct.ush"
+#include "/ComputeCore/Libs/ShaderMathLib.ush"
+
+StructuredBuffer<FBoidItem> boidsIn;
+RWStructuredBuffer<FBoidItem> boidsOut;
+
+RWStructuredBuffer<float> flatpackBoidsOut;
+
+uint numBoids;
+float deltaTime;
+
+uint randSeed;
+
+//boidsVariables
+float minSpeed;
+float maxSpeed;
+float turnSpeed;
+
+float minDistance;
+float minDistanceSq;
+float cohesionFactor;
+float separationFactor;
+float alignmentFactor;
+
+// Bounds
+float boundsRadius;
+float4x4 boundsMatrix;
+float4x4 boundsInverseMatrix;
+
+#define PI 3.14159265358979323846
+
+void LimitSpeed(inout FBoidItem boid)
+{
+    float speed = length(boid.vel);
+    float clampedSpeed = clamp(speed, minSpeed, maxSpeed);
+    boid.vel *= clampedSpeed / speed;
+}
+
+void KeepInCubeBounds(inout FBoidItem boid)
+{
+    float3 localPos = mul(boundsInverseMatrix, float4(boid.pos, 1) / boundsRadius).xyz;
+
+    if (abs(localPos.x) > 1.0f)
+    {
+        boid.vel.x -= sign(localPos.x) * deltaTime * turnSpeed;
+    }
+    if (abs(localPos.y) > 1.0f)
+    {
+        boid.vel.y -= sign(localPos.y) * deltaTime * turnSpeed;
+    }
+    if (abs(localPos.z) > 1.0f)
+    {
+        boid.vel.z -= sign(localPos.z) * deltaTime * turnSpeed;
+    }
+}
+
+void KeepInSphereBounds(inout FBoidItem boid)
+{
+    float3 posRelativeToField = mul(boundsInverseMatrix, float4(boid.pos, 1) / boundsRadius).xyz;;
+
+    float sphereDist = (length(posRelativeToField)) - 1;
+
+    float3 force = float3(0, 0, 0);
+
+    if (sphereDist > 0)
+    {
+        force = mul(boundsMatrix, float4(-posRelativeToField, 1)).xyz;
+    }
+
+    boid.vel += force;
+}
+
+void Flocking(inout FBoidItem boid, uint boidId)
+{
+    float3 center = float3(0.0f, 0.0f, 0.0f);
+    float3 close = float3(0.0f, 0.0f, 0.0f);
+    float3 avgVel = float3(0.0f, 0.0f, 0.0f);
+    uint neighbours = 0;
+
+    for (uint i = 0; i < numBoids; i++)
+    {
+        FBoidItem other = boidsIn[i];
+        
+        if (boidId == i)
+        {
+            continue;
+        }
+        
+        float3 diff = boid.pos - other.pos;
+        float distSq = dot(diff, diff);
+        
+        if (distSq > 0.0f && distSq < minDistanceSq)
+        {
+            close += (diff / distSq);
+        }
+        
+        center += other.pos;
+        avgVel += other.vel;
+        neighbours++;
+    }
+
+    if (neighbours > 0)
+    {
+        center /= (float) neighbours;
+        avgVel /= (float) neighbours;
+
+        boid.vel += (center - boid.pos) * (cohesionFactor * deltaTime);
+        boid.vel += (avgVel - boid.vel) * (alignmentFactor * deltaTime);
+    }
+
+    boid.vel += close * (separationFactor * deltaTime);
+}
+
+float3 RandomPointInSphere(inout uint _rngState)
+{
+    // Generate two random angles
+    float theta = randPCG(0.0f, 1.0f, _rngState) * 2.0 * PI;
+    float phi = acos(1.0 - 2.0 * randPCG(0.0f, 1.0f, _rngState));
+
+    // Convert angles to spherical coordinates
+    float x = sin(phi) * cos(theta);
+    float y = sin(phi) * sin(theta);
+    float z = cos(phi);
+
+    return float3(x, y, z) * randPCG(0.0f, 1.0f, _rngState);
+}
+
+float3 RandomPointInCube(inout uint _rngState)
+{
+    return float3(randPCG(-1.0f, 1.0f, _rngState), randPCG(-1.0f, 1.0f, _rngState), randPCG(-1.0f, 1.0f, _rngState));
+}
+
+#pragma kernel GenerateBoids // ID 0
+[numthreads(THREADGROUPSIZE_X, THREADGROUPSIZE_Y, THREADGROUPSIZE_Z)]
+void GenerateBoids(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= numBoids)
+    {
+        return;
+    }
+    
+    uint rngState = randSeed + id.x;
+
+    float3 randomPointInLocalSpace = RandomPointInSphere(rngState) * boundsRadius;
+    
+    boidsOut[id.x].pos = mul(boundsMatrix, float4(randomPointInLocalSpace, 1)).xyz;
+    boidsOut[id.x].vel = float3(randPCG(-maxSpeed, maxSpeed, rngState), randPCG(-maxSpeed, maxSpeed, rngState), randPCG(-maxSpeed, maxSpeed, rngState));
+    boidsOut[id.x].col = float4(randPCG(0.0f, 1.0f, rngState), randPCG(0.0f, 1.0f, rngState), randPCG(0.0f, 1.0f, rngState), 1.0f);
+}
+
+#pragma kernel UpdateBoids // ID 1
+[numthreads(THREADGROUPSIZE_X, THREADGROUPSIZE_Y, THREADGROUPSIZE_Z)]
+void UpdateBoids(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= numBoids)
+    {
+        return;
+    }
+  
+    FBoidItem boid = boidsIn[id.x];
+  
+    Flocking(boid, id.x);
+    LimitSpeed(boid);
+    KeepInSphereBounds(boid);
+    
+    boid.pos += boid.vel * deltaTime;
+
+    boidsOut[id.x] = boid;
+}
+
+#pragma kernel FlattenBoids // ID 2
+[numthreads(THREADGROUPSIZE_X, THREADGROUPSIZE_Y, THREADGROUPSIZE_Z)]
+void FlattenBoids(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= numBoids)
+    {
+        return;
+    }
+  
+    FBoidItem boid = boidsIn[id.x];
+  
+    int offset = id * BOID_ITEM_SIZE;
+    flatpackBoidsOut[offset + 0] = boid.pos.x;
+    flatpackBoidsOut[offset + 1] = boid.pos.y;
+    flatpackBoidsOut[offset + 2] = boid.pos.z;
+    flatpackBoidsOut[offset + 3] = boid.vel.x;
+    flatpackBoidsOut[offset + 4] = boid.vel.y;
+    flatpackBoidsOut[offset + 5] = boid.vel.z;
+    flatpackBoidsOut[offset + 6] = boid.pad0;
+    flatpackBoidsOut[offset + 7] = boid.pad1;
+    flatpackBoidsOut[offset + 8] = boid.col.x;
+    flatpackBoidsOut[offset + 9] = boid.col.y;
+    flatpackBoidsOut[offset + 10] = boid.col.z;
+    flatpackBoidsOut[offset + 11] = boid.col.w;
+}

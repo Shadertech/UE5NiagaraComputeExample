@@ -74,21 +74,17 @@ Plugins/*/Intermediate/*
 DerivedDataCache/*
 
 #WIP / Private files
-Shaders/CS_BoidsTransferPositions.usf
-Shaders/CS_Calc.usf
-Shaders/CS_CalcStruct.ush
-Source/ShaderCore/InstancedBufferMesh/*
-Source/ShaderCore/Data/CalcLib.h
-Source/ComputeGBExample/Actors/ComputeGBMesher.cpp
-Source/ComputeGBExample/Actors/ComputeGBMesher.h
-Source/ComputeGBExample/Actors/ComputeGBProcessor.cpp
-Source/ComputeGBExample/Actors/ComputeGBProcessor.h
-Source/ComputeGBExample/ComputeShaders/BoidsTransferPositionsCS.h
-Source/ComputeGBExample/ComputeShaders/BoidsTransferPositionsCS.cpp
-Source/ComputeGBExample/ComputeShaders/ProcessorCS.h
-Source/ComputeGBExample/ComputeShaders/ProcessorCS.cpp
-Content/Maps/M_TestLab_GB_Meshing.umap
-Content/Maps/M_TestLab_Processing.umap
-Content/Blueprint/BP_ComputeGBProcessor.uasset
+Shaders/ComputeRPExample/CS_BoidsTransferPositions.usf
+Shaders/ComputeRPProcessingExample/*
+
+Source/MaterialExampleEditor/*
+Source/ComputeRPProcessingExample/*
+Source/ComputeRPExample/ComputeShaders/BoidsRPTransferPositionsCS.h
+Source/ComputeRPExample/ComputeShaders/BoidsRPTransferPositionsCS.cpp
+Source/ComputeRPExample/GraphBuilder/BoidsTransferGB.h
+Source/ComputeRPExample/GraphBuilder/BoidsTransferGB.cpp
+
+Content/Maps/M_TestLab_RP_Processing.umap
+Content/Blueprint/BP_ComputeRPProcessor.uasset
 Content/Blueprint/BP_DefaultInstancedStaticMeshActor.uasset
 Content/Niagara/Misc/*

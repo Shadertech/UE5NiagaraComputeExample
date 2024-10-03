@@ -1,0 +1,17 @@
+#include "/Engine/Public/Platform.ush"
+#include "/ComputeCore/Libs/BoidsStruct.ush"
+
+StructuredBuffer<FBoidItem> boidsIn;
+RWStructuredBuffer<FBoidItem> boidsOut;
+uint numBoids;
+
+#pragma kernel CopyBuffer // ID 1
+[numthreads(THREADGROUPSIZE_X, THREADGROUPSIZE_Y, THREADGROUPSIZE_Z)]
+void CopyBuffer(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= numBoids)
+    {
+        return;
+    }
+    boidsOut[id.x] = boidsIn[id.x];
+}

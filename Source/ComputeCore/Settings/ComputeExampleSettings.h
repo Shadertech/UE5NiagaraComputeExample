@@ -21,6 +21,8 @@ public:
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Boids")
 	TSoftObjectPtr<UNiagaraSystem> BoidsEmitterVFX = nullptr;
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Boids")
+	TSoftObjectPtr<UNiagaraSystem> BoidsEmitterMaterialVFX = nullptr;
+	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Boids")
 	TSoftObjectPtr<UNiagaraSystem> BoidsEmitterLegacyVFX = nullptr;
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Boids")
 	TSoftObjectPtr<UNiagaraSystem> BoidsDrawerVFX = nullptr;
@@ -31,4 +33,9 @@ public:
 	FBoidConstantParameters BoidConstantParameters;
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Boids")
 	FBoidDynamicParameters BoidDynamicParameters;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Material")
+	TSoftObjectPtr<UMaterialInterface> BoidsMatInterface = nullptr;
+	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Material")
+	TSoftObjectPtr<UMaterialInterface> BoidsDrawMatInterface = nullptr;
 };

@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "0.1.1",
+	"VersionName": "0.1.2",
 	"FriendlyName": "ComputeExample",
 	"Description": "Compute Black Magic",
 	"Category": "Rendering",
@@ -16,23 +16,17 @@
 	"IsExperimentalVersion": true,
 	"Installed": true,
 	"Modules": [
+		//{
+		//	"Name": "MaterialExampleEditor",
+		//	"Type": "Editor",
+		//	"LoadingPhase": "PostEngineInit"
+		//},
 		{
 			"Name": "ComputeCore",
 			"Type": "Runtime",
 			"LoadingPhase": "PostConfigInit",
 			"PlatformAllowList": [
 				"Win64"
-			]
-		},
-		{
-			"Name": "ComputeGBExample",
-			"Type": "Runtime",
-			"LoadingPhase": "PostConfigInit",
-			"PlatformAllowList": [
-				"Win64"
-			],
-			"Dependencies": [
-				"ComputeCore"
 			]
 		},
 		{
@@ -55,9 +49,30 @@
 			],
 			"Dependencies": [
 				"ComputeCore",
-				"ComputeRPExample"
 			]
 		},
+		{
+			"Name": "ComputeRPSUBExample",
+			"Type": "Runtime",
+			"LoadingPhase": "PostConfigInit",
+			"PlatformAllowList": [
+				"Win64"
+			],
+			"Dependencies": [
+				"ComputeCore"
+			]
+		},
+		//{
+		//	"Name": "ComputeRPProcessingExample",
+		//	"Type": "Runtime",
+		//	"LoadingPhase": "PostConfigInit",
+		//	"PlatformAllowList": [
+		//		"Win64"
+		//	],
+		//	"Dependencies": [
+		//		"ComputeCore"
+		//	]
+		//},
 		{
 			"Name": "NiagaraExample",
 			"Type": "Runtime",

@@ -7,7 +7,6 @@
 #include "ShaderParameterStruct.h"
 #include "DataDrivenShaderPlatformInfo.h"
 
-#include "Core/ManagedRPCSInterface.h"
 #include "RHICommandList.h"
 #include "Utils/PingPongBuffer.h"
 

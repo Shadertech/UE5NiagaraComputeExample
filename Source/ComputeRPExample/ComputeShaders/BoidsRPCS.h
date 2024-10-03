@@ -1,14 +1,8 @@
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Data/BoidsLib.h"
 #include "GlobalShader.h"
-#include "ShaderParameters.h"
 #include "ShaderParameterStruct.h"
-#include "DataDrivenShaderPlatformInfo.h"
-
-#include "Core/ManagedRPCSInterface.h"
-#include "RHICommandList.h"
 
 class FBoidsRPInitExampleCS : public FGlobalShader
 {

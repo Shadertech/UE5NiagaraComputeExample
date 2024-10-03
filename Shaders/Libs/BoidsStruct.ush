@@ -1,0 +1,23 @@
+#ifndef BoidItem_defined
+
+#define BoidItem_defined 1
+
+//struct FBoidItem
+//{
+//    float3 pos;
+//    float3 vel;
+//    float3 col;
+//};
+
+#define BOID_ITEM_SIZE 12
+
+struct FBoidItem
+{
+    float3 pos;
+    float3 vel;
+    int pad0;
+    int pad1;
+    float4 col;
+};
+
+#endif
