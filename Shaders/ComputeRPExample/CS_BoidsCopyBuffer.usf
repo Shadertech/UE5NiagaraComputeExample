@@ -1,5 +1,5 @@
 #include "/Engine/Public/Platform.ush"
-#include "/ComputeCore/Libs/BoidsStruct.ush"
+#include "../Libs/BoidsStruct.ush"
 
 StructuredBuffer<FBoidItem> boidsIn;
 RWStructuredBuffer<FBoidItem> boidsOut;

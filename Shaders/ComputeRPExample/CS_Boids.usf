@@ -1,6 +1,6 @@
 #include "/Engine/Public/Platform.ush"
-#include "/ComputeCore/Libs/BoidsStruct.ush"
-#include "/ComputeCore/Libs/ShaderMathLib.ush"
+#include "../Libs/BoidsStruct.ush"
+#include "../Libs/ShaderMathLib.ush"
 
 StructuredBuffer<FBoidItem> boidsIn;
 RWStructuredBuffer<FBoidItem> boidsOut;

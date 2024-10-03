@@ -6,7 +6,7 @@
 
 #define MaterialExampleLib_defined 1
 
-#include "/ComputeCore/Libs/BoidsStruct.ush"
+#include "../../Libs/BoidsStruct.ush"
 
 void SampleBoidsPosition(in int id, out bool IsValid, out float3 OutValue)
 {

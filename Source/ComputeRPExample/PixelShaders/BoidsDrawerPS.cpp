@@ -5,7 +5,7 @@
 
 // This will tell the engine to create the shader and where the shader entry point is.
 //                            ShaderType            ShaderPath           Shader function name Type
-IMPLEMENT_GLOBAL_SHADER(FPixelShaderExamplePS, "/ComputeRPExample/PS_BoidsTexture.usf", "MainPixelShader", SF_Pixel);
+IMPLEMENT_GLOBAL_SHADER(FPixelShaderExamplePS, "/ComputeCore/ComputeRPExample/PS_BoidsTexture.usf", "MainPixelShader", SF_Pixel);
 
 TGlobalResource<FSimpleScreenVertexBuffer> GSimpleScreenVertexBuffer;
 

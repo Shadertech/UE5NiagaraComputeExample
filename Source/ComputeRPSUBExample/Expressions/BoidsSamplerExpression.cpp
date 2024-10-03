@@ -8,7 +8,7 @@
 
 #define LOCTEXT_NAMESPACE "BoidsSamplerExpression"
 
-const FString PATH_MATERIALEXAMPLELIB = TEXT("/ComputeRPSUBExample/Libs/MaterialExampleLib.ush");
+const FString PATH_MATERIALEXAMPLELIB = TEXT("/ComputeCore/ComputeRPSUBExample/Libs/MaterialExampleLib.ush");
 
 UBoidsSamplerExpression::UBoidsSamplerExpression(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
