@@ -16,11 +16,6 @@
 	"IsExperimentalVersion": true,
 	"Installed": true,
 	"Modules": [
-		//{
-		//	"Name": "MaterialExampleEditor",
-		//	"Type": "Editor",
-		//	"LoadingPhase": "PostEngineInit"
-		//},
 		{
 			"Name": "ComputeCore",
 			"Type": "Runtime",
@@ -62,17 +57,6 @@
 				"ComputeCore"
 			]
 		},
-		//{
-		//	"Name": "ComputeRPProcessingExample",
-		//	"Type": "Runtime",
-		//	"LoadingPhase": "PostConfigInit",
-		//	"PlatformAllowList": [
-		//		"Win64"
-		//	],
-		//	"Dependencies": [
-		//		"ComputeCore"
-		//	]
-		//},
 		{
 			"Name": "NiagaraExample",
 			"Type": "Runtime",
