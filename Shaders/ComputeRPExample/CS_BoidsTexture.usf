@@ -1,5 +1,5 @@
 #include "/Engine/Public/Platform.ush"
-#include "../Libs/BoidsStruct.ush"
+#include "/ComputeCore/Libs/BoidsStruct.ush"
 
 StructuredBuffer<FBoidItem> boidsIn;
 RWTexture2D<float4> OutputTexture;
