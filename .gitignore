@@ -77,7 +77,6 @@ DerivedDataCache/*
 Shaders/ComputeRPExample/CS_BoidsTransferPositions.usf
 Shaders/ComputeRPProcessingExample/*
 
-Source/MaterialExampleEditor/*
 Source/ComputeRPProcessingExample/*
 Source/ComputeRPExample/ComputeShaders/BoidsRPTransferPositionsCS.h
 Source/ComputeRPExample/ComputeShaders/BoidsRPTransferPositionsCS.cpp
