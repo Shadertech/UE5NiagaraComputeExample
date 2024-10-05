@@ -1,7 +1,6 @@
 #include "SceneUBtoMatSceneViewExtension.h"
 #include "ComputeShaders/BoidsRPSUBCS.h"
 #include "SceneRendererInterface.h"
-#include "RenderGraphResources.h"
 #include "RenderGraphBuilder.h"
 #include "Data/BoidsLib.h"
 #include "Utils/ComputeFunctionLibrary.h"
@@ -63,5 +62,6 @@ void FSceneUBtoMatSceneViewExtension::SetBoidsData(int32 numBoids, TRefCountPtr<
 
 void FSceneUBtoMatSceneViewExtension::DisposeBoidsBuffer()
 {
-	BoidsSceneUBtoMatSceneViewExt_GT.ReadPooled = nullptr;
+	BoidsSceneUBtoMatSceneViewExt_GT.ReleaseData();
+	BoidsSceneUBtoMatSceneViewExt_RT.ReleaseData();
 }

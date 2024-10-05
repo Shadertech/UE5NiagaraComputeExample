@@ -96,15 +96,17 @@ void UNiagaraDataInterfaceStructuredBuffer::SetShaderParameters(const FNiagaraDa
 	FRDGBuilder& GraphBuilder = Context.GetGraphBuilder();
 
 	FNDIStructuredBufferProxy& DataInterfaceProxy = Context.GetProxy<FNDIStructuredBufferProxy>();
-	if (FNDIStructuredBufferInstanceData_RenderThread * InstanceData_RT = DataInterfaceProxy.SystemInstancesToProxyData_RT.Find(Context.GetSystemInstanceID()))
+	if (FNDIStructuredBufferInstanceData_RenderThread* InstanceData_RT = DataInterfaceProxy.SystemInstancesToProxyData_RT.Find(Context.GetSystemInstanceID()))
 	{
 		if (InstanceData_RT->ReadPooled != nullptr
 			&& InstanceData_RT->numBoids > 0)
 		{
-			FRDGBufferRef ReadScopedRef;
-			FRDGBufferSRVRef ReadScopedSRV;
-			UComputeFunctionLibrary::RegisterSRV(GraphBuilder, InstanceData_RT->ReadPooled, TEXT("Niagara_BoidsIn_StructuredBuffer"), ReadScopedRef, ReadScopedSRV);
-			Parameters->boidsIn = ReadScopedSRV;
+			UComputeFunctionLibrary::RegisterSRV(GraphBuilder, InstanceData_RT->ReadPooled, TEXT("Niagara_BoidsIn_StructuredBuffer"), InstanceData_RT->ReadScopedRef, InstanceData_RT->ReadScopedSRV);
+		}
+
+		if (InstanceData_RT->ReadScopedRef != nullptr)
+		{
+			Parameters->boidsIn = InstanceData_RT->ReadScopedSRV;
 			Parameters->numBoids = InstanceData_RT->numBoids;
 			return;
 		}
@@ -162,21 +164,24 @@ bool UNiagaraDataInterfaceStructuredBuffer::PerInstanceTick(void* PerInstanceDat
 		return true;
 	}
 
-	if (InstanceData->numBoids == numBoids && InstanceData->ReadPooled == ReadPooled)
+	if (numBoids == 0 || !ReadPooled.IsValid())
+	{
+		return false;
+	}
+	if ((InstanceData->numBoids > 0 && InstanceData->numBoids == numBoids)
+		&& (InstanceData->ReadPooled.IsValid() && InstanceData->ReadPooled->GetSize() == ReadPooled->GetSize()))
 	{
 		return false;
 	}
 
 	InstanceData->numBoids = numBoids;
 	InstanceData->ReadPooled = ReadPooled;
-
 	FNDIStructuredBufferProxy* RT_Proxy = GetProxyAs<FNDIStructuredBufferProxy>();
 	ENQUEUE_RENDER_COMMAND(NDISB_UpdateInstance)(
-		[RT_Proxy, RT_InstanceID = SystemInstance->GetId(), RT_InstanceData = SystemInstance->GetId(), RT_NumBoids = numBoids, RT_ReadPooled = ReadPooled](FRHICommandListImmediate& RHICmdList)
+		[RT_Proxy, RT_InstanceID = SystemInstance->GetId(), RT_InstanceData = InstanceData](FRHICommandListImmediate& RHICmdList)
 		{
 			FNDIStructuredBufferInstanceData_RenderThread* InstanceData = &RT_Proxy->SystemInstancesToProxyData_RT.FindOrAdd(RT_InstanceID);
-			InstanceData->numBoids = RT_NumBoids;
-			InstanceData->ReadPooled = RT_ReadPooled;
+			InstanceData->UpdateData(*RT_InstanceData);
 		}
 	);
 
@@ -193,11 +198,8 @@ bool UNiagaraDataInterfaceStructuredBuffer::InitPerInstanceData(void* PerInstanc
 	check(Proxy);
 
 	FNDIStructuredBufferInstanceData_GameThread* InstanceData = new (PerInstanceData) FNDIStructuredBufferInstanceData_GameThread();
-	InstanceData->numBoids = numBoids;
-	InstanceData->ReadPooled = ReadPooled;
 	return true;
 }
-
 
 void UNiagaraDataInterfaceStructuredBuffer::DestroyPerInstanceData(void* PerInstanceData, FNiagaraSystemInstance* SystemInstance)
 {

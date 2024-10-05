@@ -53,7 +53,7 @@ protected:
 	UNiagaraComponent* Niagara = nullptr;
 
 	FPingPongBuffer BoidsPingPongBuffer;
-	FBoidsRenderGraphPasses BoidsRenderGraphPasses;
+	FBoidsRDGStateData BoidsRDGStateData;
 
 	virtual TSoftObjectPtr<UNiagaraSystem> GetNiagaraSystem() const;
 

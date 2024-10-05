@@ -1,16 +1,39 @@
 #pragma once
 #include "SceneViewExtension.h"
+#include "RenderGraphResources.h"
 
 struct FBoidsSceneUBtoMatSceneViewExt_GameThread
 {
-	TRefCountPtr<FRDGPooledBuffer> ReadPooled;
+	TRefCountPtr<FRDGPooledBuffer> ReadPooled = nullptr;
 	int32 numBoids;
+
+	~FBoidsSceneUBtoMatSceneViewExt_GameThread()
+	{
+		ReleaseData();
+	}
+
+	void ReleaseData()
+	{
+		numBoids = 0;
+		ReadPooled.SafeRelease();
+	}
 };
 
 struct FBoidsSceneUBtoMatSceneViewExt_RenderThread
 {
-	TRefCountPtr<FRDGPooledBuffer> ReadPooled;
+	TRefCountPtr<FRDGPooledBuffer> ReadPooled = nullptr;
 	int32 numBoids;
+
+	~FBoidsSceneUBtoMatSceneViewExt_RenderThread()
+	{
+		ReleaseData();
+	}
+
+	void ReleaseData()
+	{
+		numBoids = 0;
+		ReadPooled.SafeRelease();
+	}
 };
 
 class FSceneUBtoMatSceneViewExtension : public FSceneViewExtensionBase

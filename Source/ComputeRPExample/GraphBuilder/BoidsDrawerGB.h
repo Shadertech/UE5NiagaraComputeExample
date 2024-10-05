@@ -10,16 +10,30 @@ class FComputeShader_BoidsDrawer
 public:
 
 	static void InitBoidsDrawerExample_RenderThread(FRDGBuilder& GraphBuilder,
+		FBoidsRDGStateData& BoidsRDGStateData,
 		const TArray<FBoidItem>& BoidsArray,
 		FPingPongBuffer& BoidsPingPongBuffer);
 
 	static void ExecuteBoidsDrawerExample_RenderThread(FRDGBuilder& GraphBuilder,
+		FBoidsRDGStateData& BoidsRDGStateData,
 		const FBoidCurrentParameters& BoidCurrentParameters,
 		FPingPongBuffer& BoidsPingPongBuffer,
 		FRDGTextureUAVRef OutputTextureUAV,
 		UTextureRenderTarget2D* RenderTarget);
+};
 
-	static void DrawToRenderTarget_RenderThread(FRDGBuilder& GraphBuilder,
+class FPixelShader_BoidsDrawer
+{
+public:
+	static void InitDrawToRenderTargetExample_RenderThread(FRDGBuilder& GraphBuilder,
+		FBoidsRDGStateData& BoidsRDGStateData,
+		const TArray<FBoidItem>& BoidsArray,
+		UTextureRenderTarget2D* RenderTarget,
+		FRDGTextureRef& RenderTargetTexture);
+
+	static void DrawToRenderTargetExample_RenderThread(FRDGBuilder& GraphBuilder,
+		FBoidsRDGStateData& BoidsRDGStateData,
 		FRDGTextureSRVRef OutputTexture,
-		UTextureRenderTarget2D* RenderTarget);
+		UTextureRenderTarget2D* RenderTarget,
+		FRDGTextureRef& RenderTargetTexture);
 };

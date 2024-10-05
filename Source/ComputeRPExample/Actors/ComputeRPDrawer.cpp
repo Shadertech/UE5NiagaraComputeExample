@@ -61,7 +61,7 @@ void AComputeRPDrawer::InitComputeShader_GameThread()
 	BoidsArray.Empty(); // Clear any existing elements in the array
 
 	BoidsPingPongBuffer = FPingPongBuffer();
-	BoidsRenderGraphPasses = FBoidsRenderGraphPasses();
+	BoidsRDGStateData = FBoidsRDGStateData(3, 3);
 
 	Niagara->SetAsset(computeExampleSettings->BoidsDrawerVFX.LoadSynchronous());
 
@@ -75,17 +75,18 @@ void AComputeRPDrawer::InitComputeShader_RenderThread(FRHICommandListImmediate& 
 {
 	check(IsInRenderingThread());
 
-	Super::InitComputeShader_RenderThread(RHICmdList);
+	BoidsRDGStateData.ClearPasses();
+	BoidsRDGStateData.InitFence = RHICreateGPUFence(TEXT("BoidsInitFence"));
 
 	FRDGBuilder GraphBuilder(RHICmdList);
 
-	BoidsRenderGraphPasses.ClearPasses();
-
-	FGraphBullder_Boids::InitBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidsArray, BoidCurrentParameters, BoidsRenderGraphPasses, BoidsPingPongBuffer);
-	FComputeShader_BoidsDrawer::InitBoidsDrawerExample_RenderThread(GraphBuilder, BoidsArray, BoidsPingPongBuffer);
-	FPixelShader_BoidsDrawer::InitDrawToRenderTargetExample_RenderThread(GraphBuilder, BoidsArray, RenderTarget, RenderTargetTexture);
+	FGraphBullder_Boids::InitBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidsArray, BoidCurrentParameters, BoidsRDGStateData, BoidsPingPongBuffer);
+	FComputeShader_BoidsDrawer::InitBoidsDrawerExample_RenderThread(GraphBuilder, BoidsRDGStateData, BoidsArray, BoidsPingPongBuffer);
+	FPixelShader_BoidsDrawer::InitDrawToRenderTargetExample_RenderThread(GraphBuilder, BoidsRDGStateData, BoidsArray, RenderTarget, RenderTargetTexture);
 
 	GraphBuilder.Execute();
+
+	RHICmdList.WriteGPUFence(BoidsRDGStateData.InitFence);
 }
 
 // ____________________________________________ Execute Compute Shader
@@ -103,19 +104,21 @@ void AComputeRPDrawer::ExecuteComputeShader_RenderThread(FRHICommandListImmediat
 {
 	check(IsInRenderingThread());
 
-	Super::ExecuteComputeShader_RenderThread(RHICmdList);
+	BoidsRDGStateData.ClearPasses();
+	if (BoidsRDGStateData.WaitingOnInitFence())
+	{
+		return;
+	}
 
 	FRDGBuilder GraphBuilder(RHICmdList);
-
-	BoidsRenderGraphPasses.ClearPasses();
 
 	// The graph will help us figure out when the GPU memory is needed, and only have it allocated from then, so this makes memory management a lot easier and nicer!
 	//FRDGTextureDesc ComputeShaderOutputDesc = FRDGTextureDesc::Create2D(FIntPoint(RenderTarget->SizeX, RenderTarget->SizeY), EPixelFormat::PF_R32_UINT, FClearValueBinding::None, ETextureCreateFlags::RenderTargetable | ETextureCreateFlags::UAV | ETextureCreateFlags::ShaderResource);
 	FRDGTextureDesc ComputeShaderOutputDesc = FRDGTextureDesc::Create2D(FIntPoint(RenderTarget->SizeX, RenderTarget->SizeY), EPixelFormat::PF_A32B32G32R32F, FClearValueBinding::None, ETextureCreateFlags::RenderTargetable | ETextureCreateFlags::UAV | ETextureCreateFlags::ShaderResource);
 	FRDGTextureRef OutputTexture = GraphBuilder.CreateTexture(ComputeShaderOutputDesc, TEXT("ShaderPlugin_ComputeShaderOutput"), ERDGTextureFlags::None);
-	FGraphBullder_Boids::ExecuteBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidCurrentParameters, BoidsRenderGraphPasses, BoidsPingPongBuffer, LastDeltaTime);
-	FComputeShader_BoidsDrawer::ExecuteBoidsDrawerExample_RenderThread(GraphBuilder, BoidCurrentParameters, BoidsPingPongBuffer, GraphBuilder.CreateUAV(OutputTexture), RenderTarget);
-	FPixelShader_BoidsDrawer::DrawToRenderTargetExample_RenderThread(GraphBuilder, GraphBuilder.CreateSRV(OutputTexture), RenderTarget, RenderTargetTexture);
+	FGraphBullder_Boids::ExecuteBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidCurrentParameters, BoidsRDGStateData, BoidsPingPongBuffer, LastDeltaTime);
+	FComputeShader_BoidsDrawer::ExecuteBoidsDrawerExample_RenderThread(GraphBuilder, BoidsRDGStateData, BoidCurrentParameters, BoidsPingPongBuffer, GraphBuilder.CreateUAV(OutputTexture), RenderTarget);
+	FPixelShader_BoidsDrawer::DrawToRenderTargetExample_RenderThread(GraphBuilder, BoidsRDGStateData, GraphBuilder.CreateSRV(OutputTexture), RenderTarget, RenderTargetTexture);
 
 	GraphBuilder.Execute();
 }
@@ -133,9 +136,7 @@ void AComputeRPDrawer::DisposeComputeShader_RenderThread(FRHICommandListImmediat
 {
 	check(IsInRenderingThread());
 
-	Super::DisposeComputeShader_RenderThread(RHICmdList);
-
-	BoidsPingPongBuffer.Dispose();
+	BoidsRDGStateData.Dispose();
 }
 
 bool AComputeRPDrawer::SetConstantParameters()

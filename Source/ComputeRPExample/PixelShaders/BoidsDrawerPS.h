@@ -38,10 +38,3 @@ BEGIN_SHADER_PARAMETER_STRUCT(FBoidsDrawExampleParameters, )
 	SHADER_PARAMETER_STRUCT_INCLUDE(FPixelShaderExamplePS::FParameters, PS)
 	RENDER_TARGET_BINDING_SLOTS()
 END_SHADER_PARAMETER_STRUCT()
-
-class FPixelShader_BoidsDrawer
-{
-public:
-	static void InitDrawToRenderTargetExample_RenderThread(FRDGBuilder& GraphBuilder, const TArray<FBoidItem>& BoidsArray, UTextureRenderTarget2D* RenderTarget, FRDGTextureRef& RenderTargetTexture);
-	static void DrawToRenderTargetExample_RenderThread(FRDGBuilder& GraphBuilder, FRDGTextureSRVRef OutputTexture, UTextureRenderTarget2D* RenderTarget, FRDGTextureRef& RenderTargetTexture);
-};

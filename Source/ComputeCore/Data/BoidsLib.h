@@ -58,28 +58,53 @@ struct FBoidsGPUDispatches
 	int32 RequestId = 0;
 };
 
-struct FBoidsRenderGraphPasses
+struct FBoidsRDGStateData
 {
-	FRDGPassRef InitPass;
-	FRDGPassRef UpdatePass;
-	FRDGPassRef CopyPass;
+	TArray<FRDGPassRef> InitPass;
+	TArray<FRDGPassRef> ExecutePass;
 
-	FBoidsRenderGraphPasses()
+	FGPUFenceRHIRef InitFence;
+
+	FBoidsRDGStateData()
 	{
-		InitPass = nullptr;
-		UpdatePass = nullptr;
-		CopyPass = nullptr;
-		init = false;
+		InitPass.SetNum(0);
+		ExecutePass.SetNum(0);
+		InitFence = nullptr;
+	}
+
+	FBoidsRDGStateData(int32 InitPassSize, int32 ExecutePassSize)
+	{
+		InitPass.SetNum(InitPassSize);
+		ExecutePass.SetNum(ExecutePassSize);
+
+		InitFence = nullptr;
 	};
 
 	void ClearPasses()
 	{
-		InitPass = nullptr;
-		UpdatePass = nullptr;
-		CopyPass = nullptr;
+		for (int32 Index = 0; Index < InitPass.Num(); ++Index)
+		{
+			InitPass[Index] = nullptr;
+		}
+		for (int32 Index = 0; Index < ExecutePass.Num(); ++Index)
+		{
+			ExecutePass[Index] = nullptr;
+		}
 	}
 
-	bool init = false;
+	void Dispose()
+	{
+		if (InitFence->IsValid())
+		{
+			InitFence->Clear();
+			InitFence = nullptr;
+		}
+	}
+
+	bool WaitingOnInitFence()
+	{
+		return (!InitFence.IsValid() || !InitFence->Poll());
+	}
 };
 
 USTRUCT(BlueprintType)

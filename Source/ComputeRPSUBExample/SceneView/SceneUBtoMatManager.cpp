@@ -10,4 +10,10 @@ void USceneUBtoMatManager::Initialize(FSubsystemCollectionBase& Collection)
 void USceneUBtoMatManager::Deinitialize()
 {
 	Super::Deinitialize();
+
+	if (ViewExtension != nullptr)
+	{
+		ViewExtension.Reset();
+		ViewExtension = nullptr;
+	}
 }

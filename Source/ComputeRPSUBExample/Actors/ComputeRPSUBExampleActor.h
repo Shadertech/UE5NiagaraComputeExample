@@ -44,7 +44,6 @@ private:
 	TSharedPtr<FSceneUBtoMatSceneViewExtension> ViewExtension = nullptr;
 
 	FPingPongBuffer FlattenBoidsPingPongBuffer;
-	FBoidsRenderGraphPasses FlattenBoidsRenderGraphPasses;
 };
 
 inline FString AComputeRPSUBExampleActor::GetOwnerName() const

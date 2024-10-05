@@ -43,6 +43,7 @@ void URPCSManager::Register(IManagedRPCSInterface* ManagedRPCS)
 	if (!ManagedCSs.Contains(ManagedRPCS))
 	{
 		ManagedRPCS->InitComputeShader_GameThread();
+		UE_LOG(LogTemp, Log, TEXT("RPCSManager registered an interface"));
 
 		ENQUEUE_RENDER_COMMAND(FRPCSRunner)(
 			[ManagedRPCS](FRHICommandListImmediate& RHICmdList)
@@ -81,6 +82,7 @@ void URPCSManager::Deregister(IManagedRPCSInterface* ManagedRPCS)
 		RenderCommandFence.Wait();
 
 		ManagedRPCS->DisposeComputeShader_GameThread();
+		UE_LOG(LogTemp, Log, TEXT("RPCSManager deregistered an interface"));
 	}
 }
 

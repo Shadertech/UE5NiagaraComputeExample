@@ -6,8 +6,8 @@
 
 struct FPingPongBuffer
 {
-    TRefCountPtr<FRDGPooledBuffer> ReadPooled;
-    TRefCountPtr<FRDGPooledBuffer> WritePooled;
+    TRefCountPtr<FRDGPooledBuffer> ReadPooled = nullptr;
+    TRefCountPtr<FRDGPooledBuffer> WritePooled = nullptr;
 	FRDGBufferRef ReadScopedRef = nullptr;
 	FRDGBufferRef WriteScopedRef = nullptr;
 	FRDGBufferSRVRef ReadScopedSRV = nullptr;
@@ -47,7 +47,12 @@ struct FPingPongBuffer
 		UComputeFunctionLibrary::RegisterUAV(GraphBuilder, WritePooled, writeName, WriteScopedRef, WriteScopedUAV);
 	}
 
-	void Dispose()
+	~FPingPongBuffer()
+	{
+		ReleaseData();
+	}
+
+	void ReleaseData()
 	{
 		if (ReadPooled.IsValid())
 		{

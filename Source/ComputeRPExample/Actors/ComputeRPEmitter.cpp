@@ -32,22 +32,6 @@ void AComputeRPEmitter::BeginDestroy()
 	Super::BeginDestroy();
 }
 
-// ____________________________________________ DisposeComputeShader
-void AComputeRPEmitter::DisposeComputeShader_GameThread()
-{
-	check(IsInGameThread());
-	Super::DisposeComputeShader_GameThread();
-}
-
-void AComputeRPEmitter::DisposeComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList)
-{
-	check(IsInRenderingThread());
-
-	Super::DisposeComputeShader_RenderThread(RHICmdList);
-
-	BoidsPingPongBuffer.Dispose();
-}
-
 // ____________________________________________ Init Compute Shader
 
 void AComputeRPEmitter::InitComputeShader_GameThread()
@@ -60,6 +44,7 @@ void AComputeRPEmitter::InitComputeShader_GameThread()
 	BoidsArray.Empty(); // Clear any existing elements in the array
 
 	BoidsPingPongBuffer = FPingPongBuffer();
+	BoidsRDGStateData = FBoidsRDGStateData(1, 1);
 
 	Niagara->SetAsset(GetNiagaraSystem().LoadSynchronous());
 
@@ -73,15 +58,16 @@ void AComputeRPEmitter::InitComputeShader_RenderThread(FRHICommandListImmediate&
 {
 	check(IsInRenderingThread());
 
-	Super::InitComputeShader_RenderThread(RHICmdList);
+	BoidsRDGStateData.ClearPasses();
+	BoidsRDGStateData.InitFence = RHICreateGPUFence(TEXT("BoidsInitFence"));
 
 	FRDGBuilder GraphBuilder(RHICmdList);
 
-	BoidsRenderGraphPasses.ClearPasses();
-
-	FGraphBullder_Boids::InitBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidsArray, BoidCurrentParameters, BoidsRenderGraphPasses, BoidsPingPongBuffer);
+	FGraphBullder_Boids::InitBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidsArray, BoidCurrentParameters, BoidsRDGStateData, BoidsPingPongBuffer);
 
 	GraphBuilder.Execute();
+
+	RHICmdList.WriteGPUFence(BoidsRDGStateData.InitFence);
 }
 
 // ____________________________________________ Execute Compute Shader
@@ -99,15 +85,31 @@ void AComputeRPEmitter::ExecuteComputeShader_RenderThread(FRHICommandListImmedia
 {
 	check(IsInRenderingThread());
 
-	Super::ExecuteComputeShader_RenderThread(RHICmdList);
+	BoidsRDGStateData.ClearPasses();
+	if (BoidsRDGStateData.WaitingOnInitFence())
+	{
+		return;
+	}
 
 	FRDGBuilder GraphBuilder(RHICmdList);
 
-	BoidsRenderGraphPasses.ClearPasses();
-
-	FGraphBullder_Boids::ExecuteBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidCurrentParameters, BoidsRenderGraphPasses, BoidsPingPongBuffer, LastDeltaTime);
+	FGraphBullder_Boids::ExecuteBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidCurrentParameters, BoidsRDGStateData, BoidsPingPongBuffer, LastDeltaTime);
 
 	GraphBuilder.Execute();
+}
+
+// ____________________________________________ DisposeComputeShader
+void AComputeRPEmitter::DisposeComputeShader_GameThread()
+{
+	check(IsInGameThread());
+	Super::DisposeComputeShader_GameThread();
+}
+
+void AComputeRPEmitter::DisposeComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList)
+{
+	check(IsInRenderingThread());
+
+	BoidsRDGStateData.Dispose();
 }
 
 TSoftObjectPtr<UNiagaraSystem> AComputeRPEmitter::GetNiagaraSystem() const

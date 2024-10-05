@@ -11,12 +11,6 @@ void UNDIStructuredBufferFunctionLibrary::SetNiagaraStructuredBuffer(UNiagaraCom
 {
 	if (UNiagaraDataInterfaceStructuredBuffer* SBDI = UNiagaraFunctionLibrary::GetDataInterface<UNiagaraDataInterfaceStructuredBuffer>(NiagaraComponent, OverrideName))
 	{
-		SBDI->numBoids = numBoids;
-
-		if (!SBDI->GetBuffer().IsValid()
-			&& InBuffer.IsValid())
-		{
-			SBDI->SetBuffer(InBuffer);
-		}
+		SBDI->SetData(numBoids, InBuffer);
 	}
 }

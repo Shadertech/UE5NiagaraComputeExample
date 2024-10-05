@@ -63,7 +63,7 @@ private:
 	FPingPongBuffer BoidsPingPongBuffer;
 	FRDGTextureRef RenderTargetTexture;
 	FMatrix BoundsMatrix;
-	FBoidsRenderGraphPasses BoidsRenderGraphPasses;
+	FBoidsRDGStateData BoidsRDGStateData;
 
 private:
 	void CreateRenderTexture();

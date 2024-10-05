@@ -49,3 +49,39 @@ bool UComputeFunctionLibrary::IsPlaying(const UObject* WorldContextObject)
 	return true;
 #endif
 }
+
+BEGIN_SHADER_PARAMETER_STRUCT(FCopyBufferParameters, )
+	RDG_BUFFER_ACCESS(SrcBuffer, ERHIAccess::CopySrc)
+	RDG_BUFFER_ACCESS(DstBuffer, ERHIAccess::CopyDest)
+END_SHADER_PARAMETER_STRUCT()
+
+FRDGPassRef UComputeFunctionLibrary::AddCopyBufferPass(FRDGBuilder& GraphBuilder, FRDGBufferRef DstBuffer, uint64 DstOffset, FRDGBufferRef SrcBuffer, uint64 SrcOffset, uint64 NumBytes)
+{
+	check(SrcBuffer);
+	check(DstBuffer);
+
+	FCopyBufferParameters* Parameters = GraphBuilder.AllocParameters<FCopyBufferParameters>();
+	Parameters->SrcBuffer = SrcBuffer;
+	Parameters->DstBuffer = DstBuffer;
+
+	FRDGPassRef CopyPass = GraphBuilder.AddPass(
+		RDG_EVENT_NAME("CopyBuffer(%s Size=%ubytes)", SrcBuffer->Name, SrcBuffer->Desc.GetSize()),
+		Parameters,
+		ERDGPassFlags::Copy,
+		[&Parameters, SrcBuffer, DstBuffer, SrcOffset, DstOffset, NumBytes](FRHICommandList& RHICmdList)
+		{
+			RHICmdList.CopyBufferRegion(DstBuffer->GetRHI(), DstOffset, SrcBuffer->GetRHI(), SrcOffset, NumBytes);
+		});
+
+	return CopyPass;
+}
+
+FRDGPassRef UComputeFunctionLibrary::AddCopyBufferPass(FRDGBuilder& GraphBuilder, FRDGBufferRef DstBuffer, FRDGBufferRef SrcBuffer)
+{
+	check(SrcBuffer);
+	check(DstBuffer);
+
+	const uint64 NumBytes = SrcBuffer->Desc.NumElements * SrcBuffer->Desc.BytesPerElement;
+
+	return UComputeFunctionLibrary::AddCopyBufferPass(GraphBuilder, DstBuffer, 0, SrcBuffer, 0, NumBytes);
+}

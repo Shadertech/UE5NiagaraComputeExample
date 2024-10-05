@@ -22,21 +22,15 @@ class COMPUTECORE_API UNiagaraDataInterfaceStructuredBuffer : public UNiagaraDat
 		SHADER_PARAMETER(int32, numBoids)
 	END_SHADER_PARAMETER_STRUCT()
 
-public:
-	int32 numBoids;
-
 private:
-	TRefCountPtr<FRDGPooledBuffer> ReadPooled;
+	int32 numBoids = 0;
+	TRefCountPtr<FRDGPooledBuffer> ReadPooled = nullptr;
 
 public:
-	 void SetBuffer(TRefCountPtr<FRDGPooledBuffer> InBuffer)
+	 void SetData(int32 _numBoids, TRefCountPtr<FRDGPooledBuffer> _ReadPooled)
 	 {
-		 ReadPooled = InBuffer;
-	 }
-
-	 TRefCountPtr<FRDGPooledBuffer> GetBuffer()
-	 {
-		return ReadPooled;
+		 numBoids = _numBoids;
+		 ReadPooled = _ReadPooled;
 	 }
 
 	//UObject Interface
@@ -66,19 +60,47 @@ public:
 
 struct FNDIStructuredBufferInstanceData_GameThread
 {
-	//FNiagaraParameterDirectBinding<UObject*> UserParamBinding;
-	TRefCountPtr<FRDGPooledBuffer> ReadPooled;
-	//FRDGBufferSRVRef ReadScopedSRV;
-	int32 numBoids;
+	TRefCountPtr<FRDGPooledBuffer> ReadPooled = nullptr;
+	int32 numBoids = 0;
+
+	~FNDIStructuredBufferInstanceData_GameThread()
+	{
+		ReleaseData();
+	}
+
+	void ReleaseData()
+	{
+		numBoids = 0;
+		ReadPooled.SafeRelease();
+	}
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 struct FNDIStructuredBufferInstanceData_RenderThread
 {
-	TRefCountPtr<FRDGPooledBuffer> ReadPooled;
-	//FRDGBufferSRVRef ReadScopedSRV;
-	int32 numBoids;
+	TRefCountPtr<FRDGPooledBuffer> ReadPooled = nullptr;
+	FRDGBufferRef ReadScopedRef = nullptr;
+	FRDGBufferSRVRef ReadScopedSRV = nullptr;
+	int32 numBoids = 0;
+
+	~FNDIStructuredBufferInstanceData_RenderThread()
+	{
+		ReleaseData();
+	}
+
+	void UpdateData(FNDIStructuredBufferInstanceData_GameThread& InstanceData_GT)
+	{
+		ReleaseData();
+		ReadPooled = InstanceData_GT.ReadPooled;
+		numBoids = InstanceData_GT.numBoids;
+	}
+
+	void ReleaseData()
+	{
+		numBoids = 0;
+		ReadPooled.SafeRelease();
+	}
 };
 
 struct FNDIStructuredBufferProxy : public FNiagaraDataInterfaceProxy

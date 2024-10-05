@@ -11,14 +11,14 @@ public:
 	static void InitFlattenBoidsExample_RenderThread(FRDGBuilder& GraphBuilder,
 		const TCHAR* OwnerName,
 		const TArray<FBoidItem>& BoidsArray,
-		FBoidsRenderGraphPasses& FlattenBoidsRenderGraphPasses,
+		FBoidsRDGStateData& BoidsRDGStateData,
 		FPingPongBuffer& FlattenBoidsPingPongBuffer,
 		FPingPongBuffer& BoidsPingPongBuffer);
 
 	static void ExecuteFlattenBoidsExample_RenderThread(FRDGBuilder& GraphBuilder,
 		const TCHAR* OwnerName,
 		const FBoidCurrentParameters& BoidCurrentParameters,
-		FBoidsRenderGraphPasses& FlattenBoidsRenderGraphPasses,
+		FBoidsRDGStateData& BoidsRDGStateData,
 		FPingPongBuffer& FlattenBoidsPingPongBuffer,
 		FPingPongBuffer& BoidsPingPongBuffer,
 		float DeltaTime);

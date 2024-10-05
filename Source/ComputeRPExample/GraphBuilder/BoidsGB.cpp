@@ -4,7 +4,7 @@
 
 #define BoidsExample_ThreadsPerGroup 512
 
-void FGraphBullder_Boids::InitBoidsExample_RenderThread(FRDGBuilder& GraphBuilder, const TCHAR* OwnerName, const TArray<FBoidItem>& BoidsArray,  const FBoidCurrentParameters& BoidCurrentParameters, FBoidsRenderGraphPasses& BoidsRenderGraphPasses, FPingPongBuffer& BoidsPingPongBuffer)
+void FGraphBullder_Boids::InitBoidsExample_RenderThread(FRDGBuilder& GraphBuilder, const TCHAR* OwnerName, const TArray<FBoidItem>& BoidsArray,  const FBoidCurrentParameters& BoidCurrentParameters, FBoidsRDGStateData& BoidsRDGStateData, FPingPongBuffer& BoidsPingPongBuffer)
 {
 	QUICK_SCOPE_CYCLE_COUNTER(STAT_BoidsExample_Init);
 	SCOPED_DRAW_EVENT(GraphBuilder.RHICmdList, BoidsExample_Init);
@@ -40,8 +40,7 @@ void FGraphBullder_Boids::InitBoidsExample_RenderThread(FRDGBuilder& GraphBuilde
 	TShaderMapRef<FBoidsRPInitExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
 	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidCurrentParameters.ConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
 
-	BoidsRenderGraphPasses.init = true;
-	BoidsRenderGraphPasses.InitPass = FComputeShaderUtils::AddPass(GraphBuilder,
+	BoidsRDGStateData.InitPass[0] = FComputeShaderUtils::AddPass(GraphBuilder,
 		RDG_EVENT_NAME("RP_InitBoidsExample"),
 		ERDGPassFlags::Compute | ERDGPassFlags::NeverCull,
 		ComputeShader,
@@ -79,14 +78,10 @@ void FGraphBullder_Boids::GetBoidsExample_RenderThread(FRDGBuilder& GraphBuilder
 	}
 }
 
-void FGraphBullder_Boids::ExecuteBoidsExample_RenderThread(FRDGBuilder& GraphBuilder, const TCHAR* OwnerName,  const FBoidCurrentParameters& BoidCurrentParameters, FBoidsRenderGraphPasses& BoidsRenderGraphPasses, FPingPongBuffer& BoidsPingPongBuffer, float DeltaTime)
+void FGraphBullder_Boids::ExecuteBoidsExample_RenderThread(FRDGBuilder& GraphBuilder, const TCHAR* OwnerName,  const FBoidCurrentParameters& BoidCurrentParameters, FBoidsRDGStateData& BoidsRDGStateData, FPingPongBuffer& BoidsPingPongBuffer, float DeltaTime)
 {
 	QUICK_SCOPE_CYCLE_COUNTER(STAT_BoidsExample_Execute);
 	SCOPED_DRAW_EVENT(GraphBuilder.RHICmdList, BoidsExample_Execute);
-
-	/*if (!BoidsRenderGraphPasses.InitPass)
-	{
-	}*/
 
 	const TCHAR* SRVName = *(FString(OwnerName) + TEXT("BoidsIn_StructuredBuffer"));
 	const TCHAR* UAVName = *(FString(OwnerName) + TEXT("BoidsOut_StructuredBuffer"));
@@ -113,27 +108,22 @@ void FGraphBullder_Boids::ExecuteBoidsExample_RenderThread(FRDGBuilder& GraphBui
 
 	TShaderMapRef<FBoidsRPUpdateExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
 	FIntVector GroupCounts = FIntVector(FMath::DivideAndRoundUp(BoidCurrentParameters.ConstantParameters.numBoids, BoidsExample_ThreadsPerGroup), 1, 1);
-	BoidsRenderGraphPasses.UpdatePass = FComputeShaderUtils::AddPass(GraphBuilder,
+	BoidsRDGStateData.ExecutePass[0] = FComputeShaderUtils::AddPass(GraphBuilder,
 		RDG_EVENT_NAME("RP_BoidsUpdateExample"),
 		ERDGPassFlags::Compute | ERDGPassFlags::NeverCull,
 		ComputeShader,
 		PassParameters,
 		GroupCounts);
 
-	if (BoidsRenderGraphPasses.InitPass)
-	{
-		GraphBuilder.AddPassDependency(BoidsRenderGraphPasses.InitPass, BoidsRenderGraphPasses.UpdatePass);
-	}
-
 	//AddCopyBufferPass(GraphBuilder, BoidsPingPongBuffer.WriteScopedRef, BoidsPingPongBuffer.ReadScopedRef);
 	GraphBuilder.QueueBufferExtraction(BoidsPingPongBuffer.WriteScopedRef, &BoidsPingPongBuffer.ReadPooled);
 }
 
-void FGraphBullder_Boids::ExecuteBoidsReadbackExample_RenderThread(FRDGBuilder& GraphBuilder, const TCHAR* OwnerName,  const FBoidCurrentParameters& BoidCurrentParameters, FBoidsRenderGraphPasses& BoidsRenderGraphPasses, FPingPongBuffer& BoidsPingPongBuffer, float DeltaTime, FBoidsGPUReadback& BoidsGPURequest)
+void FGraphBullder_Boids::ExecuteBoidsReadbackExample_RenderThread(FRDGBuilder& GraphBuilder, const TCHAR* OwnerName,  const FBoidCurrentParameters& BoidCurrentParameters, FBoidsRDGStateData& BoidsRDGStateData, FPingPongBuffer& BoidsPingPongBuffer, float DeltaTime, FBoidsGPUReadback& BoidsGPURequest)
 {
 	QUICK_SCOPE_CYCLE_COUNTER(STAT_BoidsExample_Readback);
 
-	ExecuteBoidsExample_RenderThread(GraphBuilder, OwnerName, BoidCurrentParameters, BoidsRenderGraphPasses, BoidsPingPongBuffer, DeltaTime);
+	ExecuteBoidsExample_RenderThread(GraphBuilder, OwnerName, BoidCurrentParameters, BoidsRDGStateData, BoidsPingPongBuffer, DeltaTime);
 
 	BoidsGPURequest.NrWorkGroups = FMath::DivideAndRoundUp(BoidCurrentParameters.ConstantParameters.numBoids, BoidsExample_ThreadsPerGroup);
 	BoidsGPURequest.BufferLength = BoidCurrentParameters.ConstantParameters.numBoids;

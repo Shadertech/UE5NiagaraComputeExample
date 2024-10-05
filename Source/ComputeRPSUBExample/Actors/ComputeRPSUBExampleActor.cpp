@@ -7,6 +7,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Settings/ComputeExampleSettings.h"
 #include "GraphBuilder/FlattenBoidsGB.h"
+#include "GraphBuilder/BoidsGB.h"
 
 DEFINE_LOG_CATEGORY(LogComputeRPSUBExampleActor);
 
@@ -22,6 +23,7 @@ void AComputeRPSUBExampleActor::InitComputeShader_GameThread()
 	MatiD = UMaterialInstanceDynamic::Create(MatInterface, this);
 
 	Super::InitComputeShader_GameThread();
+	BoidsRDGStateData = FBoidsRDGStateData(2, 2);
 
 	USceneUBtoMatManager* UBtoMatManager = GEngine->GetEngineSubsystem<USceneUBtoMatManager>();
 	if (UBtoMatManager)
@@ -33,15 +35,18 @@ void AComputeRPSUBExampleActor::InitComputeShader_GameThread()
 void AComputeRPSUBExampleActor::InitComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList)
 {
 	check(IsInRenderingThread());
-	Super::InitComputeShader_RenderThread(RHICmdList);
+
+	BoidsRDGStateData.ClearPasses();
+	BoidsRDGStateData.InitFence = RHICreateGPUFence(TEXT("BoidsInitFence"));
 
 	FRDGBuilder GraphBuilder(RHICmdList);
 
-	FlattenBoidsRenderGraphPasses.ClearPasses();
-
-	FGraphBullder_FlattenBoids::InitFlattenBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidsArray, FlattenBoidsRenderGraphPasses, FlattenBoidsPingPongBuffer, BoidsPingPongBuffer);
+	FGraphBullder_Boids::InitBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidsArray, BoidCurrentParameters, BoidsRDGStateData, BoidsPingPongBuffer);
+	FGraphBullder_FlattenBoids::InitFlattenBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidsArray, BoidsRDGStateData, FlattenBoidsPingPongBuffer, BoidsPingPongBuffer);
 
 	GraphBuilder.Execute();
+
+	RHICmdList.WriteGPUFence(BoidsRDGStateData.InitFence);
 }
 
 void AComputeRPSUBExampleActor::ExecuteComputeShader_GameThread(float DeltaTime)
@@ -52,13 +57,17 @@ void AComputeRPSUBExampleActor::ExecuteComputeShader_GameThread(float DeltaTime)
 void AComputeRPSUBExampleActor::ExecuteComputeShader_RenderThread(FRHICommandListImmediate& RHICmdList)
 {
 	check(IsInRenderingThread());
-	Super::ExecuteComputeShader_RenderThread(RHICmdList);
+
+	BoidsRDGStateData.ClearPasses();
+	if (BoidsRDGStateData.WaitingOnInitFence())
+	{
+		return;
+	}
 
 	FRDGBuilder GraphBuilder(RHICmdList);
 
-	FlattenBoidsRenderGraphPasses.ClearPasses();
-
-	FGraphBullder_FlattenBoids::ExecuteFlattenBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidCurrentParameters, FlattenBoidsRenderGraphPasses, FlattenBoidsPingPongBuffer, BoidsPingPongBuffer, LastDeltaTime);
+	FGraphBullder_Boids::ExecuteBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidCurrentParameters, BoidsRDGStateData, BoidsPingPongBuffer, LastDeltaTime);
+	FGraphBullder_FlattenBoids::ExecuteFlattenBoidsExample_RenderThread(GraphBuilder, *GetOwnerName(), BoidCurrentParameters, BoidsRDGStateData, FlattenBoidsPingPongBuffer, BoidsPingPongBuffer, LastDeltaTime);
 
 	GraphBuilder.Execute();
 }
@@ -79,8 +88,6 @@ void AComputeRPSUBExampleActor::DisposeComputeShader_RenderThread(FRHICommandLis
 	check(IsInRenderingThread());
 
 	Super::DisposeComputeShader_RenderThread(RHICmdList);
-
-	FlattenBoidsPingPongBuffer.Dispose();
 }
 
 bool AComputeRPSUBExampleActor::SetConstantParameters()
