@@ -5,8 +5,6 @@
 StructuredBuffer<FBoidItem> boidsIn;
 RWStructuredBuffer<FBoidItem> boidsOut;
 
-RWStructuredBuffer<float> flatpackBoidsOut;
-
 uint numBoids;
 float deltaTime;
 
@@ -167,30 +165,4 @@ void UpdateBoids(uint3 id : SV_DispatchThreadID)
     boid.pos += boid.vel * deltaTime;
 
     boidsOut[id.x] = boid;
-}
-
-#pragma kernel FlattenBoids // ID 2
-[numthreads(THREADGROUPSIZE_X, THREADGROUPSIZE_Y, THREADGROUPSIZE_Z)]
-void FlattenBoids(uint3 id : SV_DispatchThreadID)
-{
-    if (id.x >= numBoids)
-    {
-        return;
-    }
-  
-    FBoidItem boid = boidsIn[id.x];
-  
-    int offset = id * BOID_ITEM_SIZE;
-    flatpackBoidsOut[offset + 0] = boid.pos.x;
-    flatpackBoidsOut[offset + 1] = boid.pos.y;
-    flatpackBoidsOut[offset + 2] = boid.pos.z;
-    flatpackBoidsOut[offset + 3] = boid.vel.x;
-    flatpackBoidsOut[offset + 4] = boid.vel.y;
-    flatpackBoidsOut[offset + 5] = boid.vel.z;
-    flatpackBoidsOut[offset + 6] = boid.pad0;
-    flatpackBoidsOut[offset + 7] = boid.pad1;
-    flatpackBoidsOut[offset + 8] = boid.col.x;
-    flatpackBoidsOut[offset + 9] = boid.col.y;
-    flatpackBoidsOut[offset + 10] = boid.col.z;
-    flatpackBoidsOut[offset + 11] = boid.col.w;
 }

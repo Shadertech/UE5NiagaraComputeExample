@@ -25,7 +25,7 @@ struct FPingPongBuffer
 
 	void PingPong(FRDGBuilder& GraphBuilder)
 	{
-		std::swap(ReadScopedRef, WriteScopedRef);
+		Swap(ReadScopedRef, WriteScopedRef);
 
 		ReadScopedSRV = GraphBuilder.CreateSRV(ReadScopedRef);
 		WriteScopedUAV = GraphBuilder.CreateUAV(WriteScopedRef);
