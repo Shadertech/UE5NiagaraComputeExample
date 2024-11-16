@@ -23,14 +23,6 @@ public:
 		uint32 NumElements,
 		bool bReadOnly = false);
 
-	static FRDGBufferRef CreateRegisteredStructuredBuffer(
-		FRDGBuilder& GraphBuilder,
-		const TCHAR* Name,
-		uint32 BytesPerElement,
-		uint32 NumElements,
-		bool bReadOnly = false,
-		ERDGBufferFlags flags = ERDGBufferFlags::None);
-
 	static void RegisterSRV(
 		FRDGBuilder& GraphBuilder,
 		TRefCountPtr<FRDGPooledBuffer> buffer,
@@ -49,7 +41,4 @@ public:
 
 	static FRDGPassRef AddCopyBufferPass(FRDGBuilder& GraphBuilder, FRDGBufferRef DstBuffer, uint64 DstOffset, FRDGBufferRef SrcBuffer, uint64 SrcOffset, uint64 NumBytes);
 	static FRDGPassRef AddCopyBufferPass(FRDGBuilder& GraphBuilder, FRDGBufferRef DstBuffer, FRDGBufferRef SrcBuffer);
-
-	UFUNCTION(BlueprintPure, Category = "ComputeExample", meta = (BlueprintThreadSafe, WorldContext = "WorldContextObject"))
-	static bool IsPlaying(const UObject* WorldContextObject);
 };

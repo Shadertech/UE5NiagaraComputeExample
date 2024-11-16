@@ -22,37 +22,6 @@ FRDGBufferRef UComputeFunctionLibrary::CreateStructuredBuffer(
 	return GraphBuilder.CreateBuffer(Desc, Name);
 }
 
-FRDGBufferRef UComputeFunctionLibrary::CreateRegisteredStructuredBuffer(
-	FRDGBuilder& GraphBuilder,
-	const TCHAR* Name,
-	uint32 BytesPerElement,
-	uint32 NumElements,
-	bool bReadOnly,
-	ERDGBufferFlags flags)
-{
-	FRHICommandListBase& RHICmdList = GraphBuilder.RHICmdList;
-
-	FRHIResourceCreateInfo CreateInfo(Name);
-	FRDGBufferDesc BufferDesc = FRDGBufferDesc::CreateStructuredDesc(BytesPerElement, NumElements);
-
-	if (bReadOnly)
-	{
-		// Remove the UAV flag, as default resources are supposed to be read-only.
-		EnumRemoveFlags(BufferDesc.Usage, EBufferUsageFlags::UnorderedAccess);
-	}
-
-	const uint32 BufferSize = BytesPerElement * NumElements;
-
-	TRefCountPtr<FRHIBuffer> RHIBuffer = RHICmdList.CreateStructuredBuffer(BytesPerElement, BufferSize, BufferDesc.Usage, CreateInfo);
-	TRefCountPtr<FRDGPooledBuffer> DummyPooledBuffer = new FRDGPooledBuffer(RHICmdList, RHIBuffer, BufferDesc, NumElements, Name);
-
-	uint8* DestPtr = static_cast<uint8*>(RHICmdList.LockBuffer(RHIBuffer, 0, BufferSize, RLM_WriteOnly));
-	FMemory::Memzero(DestPtr, BufferSize);
-	RHICmdList.UnlockBuffer(RHIBuffer);
-
-	return GraphBuilder.RegisterExternalBuffer(DummyPooledBuffer, flags);
-}
-
 void UComputeFunctionLibrary::RegisterSRV(
 	FRDGBuilder& GraphBuilder,
 	TRefCountPtr<FRDGPooledBuffer> buffer,
@@ -61,7 +30,7 @@ void UComputeFunctionLibrary::RegisterSRV(
 	FRDGBufferSRVRef& outSRVRef,
 	ERDGBufferFlags flags)
 {
-	outRDGRef = GraphBuilder.RegisterExternalBuffer(buffer, *name, flags);//, ERDGBufferFlags::MultiFrame);
+	outRDGRef = GraphBuilder.RegisterExternalBuffer(buffer, *name, flags);
 	outSRVRef = GraphBuilder.CreateSRV(outRDGRef);
 }
 
@@ -73,22 +42,8 @@ void UComputeFunctionLibrary::RegisterUAV(
 	FRDGBufferUAVRef& outUAVRef,
 	ERDGBufferFlags flags)
 {
-	outRDGRef = GraphBuilder.RegisterExternalBuffer(buffer, *name, flags);//, ERDGBufferFlags::MultiFrame);
+	outRDGRef = GraphBuilder.RegisterExternalBuffer(buffer, *name, flags);
 	outUAVRef = GraphBuilder.CreateUAV(outRDGRef);
-}
-
-bool UComputeFunctionLibrary::IsPlaying(const UObject* WorldContextObject)
-{
-#if WITH_EDITOR
-	UWorld* World = WorldContextObject->GetWorld();
-	if (World && !World->IsGameWorld())
-	{
-		return false;
-	}
-	return true;
-#else
-	return true;
-#endif
 }
 
 BEGIN_SHADER_PARAMETER_STRUCT(FCopyBufferParameters, )

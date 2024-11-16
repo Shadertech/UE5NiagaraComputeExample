@@ -48,7 +48,6 @@ void FSceneUBtoMatSceneViewExtension::PreRenderViewFamily_RenderThread(FRDGBuild
 	else
 	{
 		params.numBoids = 0;
-		//FRDGBufferRef DummyBuffer = UComputeFunctionLibrary::CreateRegisteredStructuredBuffer(GraphBuilder, TEXT("ComputeExample.boidsIn"), 4, 1, true, ERDGBufferFlags::SkipTracking);
 		FRDGBufferRef DummyBuffer = GSystemTextures.GetDefaultStructuredBuffer(GraphBuilder, 4);
 		params.boidsIn = GraphBuilder.CreateSRV(DummyBuffer);
 	}

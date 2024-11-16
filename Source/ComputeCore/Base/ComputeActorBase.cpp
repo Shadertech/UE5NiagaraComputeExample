@@ -45,15 +45,28 @@ void AComputeActorBase::BeginDestroy()
 
 }
 
+bool AComputeActorBase::IsPlaying(const UObject* WorldContextObject)
+{
+#if WITH_EDITOR
+	UWorld* World = WorldContextObject->GetWorld();
+	if (World && !World->IsGameWorld())
+	{
+		return false;
+	}
+#endif
+
+	return true;
+}
+
 // Called every frame
 void AComputeActorBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 #if WITH_EDITOR
-	bool IsPlaying = UComputeFunctionLibrary::IsPlaying(this);
+	bool bIsPlaying = AComputeActorBase::IsPlaying(this);
 
-	bool CanDebug = !IsPlaying || (IsPlaying && bDebugDisplayInRuntime);
+	bool CanDebug = !bIsPlaying || (bIsPlaying && bDebugDisplayInRuntime);
 
 	if (bDebugSprite && CanDebug)
 	{

@@ -44,6 +44,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintPure, Category = "ComputeExample", meta = (BlueprintThreadSafe, WorldContext = "WorldContextObject"))
+	static bool IsPlaying(const UObject* WorldContextObject);
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Bounds")
 	USceneComponent* Root = nullptr;
