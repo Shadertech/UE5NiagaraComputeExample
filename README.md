@@ -63,7 +63,7 @@ To integrate this plugin into your Unreal Engine project:
 
 8. Enjoy. You can configure the plguin from the "ST Compute Example" Plugin Project Settings. You can even modify the values in runtime. :)
 
-![boidsSettings](https://github.com/user-attachments/assets/54758ba8-a390-49e2-beb9-9bfc7977a24b)
+![boidsSettings ](https://github.com/user-attachments/assets/01dc0ca4-178c-450b-aa4a-77e4cfb95c04)
 
 ## Contributing
 
