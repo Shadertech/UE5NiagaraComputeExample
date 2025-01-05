@@ -5,7 +5,7 @@
 #include "Data/BoidsLib.h"
 #include "ComputeExampleSettings.generated.h"
 
-UCLASS(config = Game, defaultconfig, meta = (DisplayName = "Compute Example Settings"))
+UCLASS(Config = ComputeExample, DefaultConfig, meta = (DisplayName = "ST Compute Example"))
 class COMPUTECORE_API UComputeExampleSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
@@ -38,4 +38,12 @@ public:
 	TSoftObjectPtr<UMaterialInterface> BoidsMatInterface = nullptr;
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Material")
 	TSoftObjectPtr<UMaterialInterface> BoidsDrawMatInterface = nullptr;
+
+protected:
+
+	// UDeveloperSettings interface.
+	virtual FName GetCategoryName() const override
+	{
+		return TEXT("Plugins");
+	}
 };

@@ -58,13 +58,12 @@ To integrate this plugin into your Unreal Engine project:
 4. Enable the plugin within your project settings via the Plugins menu.
 5. Open Maps/M_TestLab (persistent map)
 6. Toggle examples by activating/deactivating sub-levels from the persistent level. You can launch each map individually, or mark them all as "always loaded" to run them all together.
-7. Configure boids parameters through Compute Example Settings inside Project Settings. Please assign the Niagara systems as follows.
-
-![boidsSettings](https://github.com/user-attachments/assets/54758ba8-a390-49e2-beb9-9bfc7977a24b)
 
 ![subLevels](https://github.com/user-attachments/assets/4e8d3a40-5799-4aee-802d-34d79005b3ca)
 
-8. Enjoy. You can play with the compute example settings even in runtime. :)
+8. Enjoy. You can configure the plguin from the "ST Compute Example" Plugin Project Settings. You can even modify the values in runtime. :)
+
+![boidsSettings](https://github.com/user-attachments/assets/54758ba8-a390-49e2-beb9-9bfc7977a24b)
 
 ## Contributing
 
