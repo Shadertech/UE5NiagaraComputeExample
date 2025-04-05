@@ -3,9 +3,9 @@
 	"Version": 1,
 	"VersionName": "0.1.2",
 	"FriendlyName": "ComputeExample",
-	"Description": "Compute Black Magic",
-	"Category": "Rendering",
-	"CreatedBy": "Aaron Trotter",
+	"Description": "Demonstrates compute shader integration with the Niagara particle system.",
+	"Category": "ShaderTech",
+	"CreatedBy": "Aaron Trotter (ShaderTech)",
 	"CreatedByURL": "https://aarontrotter.com/",
 	"DocsURL": "https://github.com/Shadertech/UE5NiagaraComputeExample",
 	"MarketplaceURL": "",
@@ -43,7 +43,7 @@
 				"Win64"
 			],
 			"Dependencies": [
-				"ComputeCore",
+				"ComputeCore"
 			]
 		},
 		{

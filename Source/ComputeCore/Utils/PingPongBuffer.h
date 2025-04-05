@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
 #pragma once
 #include "RenderGraphUtils.h"
 #include "RenderGraphBuilder.h"

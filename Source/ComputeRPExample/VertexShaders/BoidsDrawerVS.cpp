@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
 #include "BoidsDrawerVS.h"
 #include "CommonRenderResources.h"
 #include "Containers/DynamicRHIResourceArray.h"

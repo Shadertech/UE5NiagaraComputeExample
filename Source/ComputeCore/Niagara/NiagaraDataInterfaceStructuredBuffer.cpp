@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
 #include "NiagaraDataInterfaceStructuredBuffer.h"
 
 #include "NiagaraGpuComputeDispatchInterface.h"
@@ -12,9 +14,8 @@ static const TCHAR* TemplateShaderFile = TEXT("/ComputeCore/Niagara/NiagaraDataI
 
 struct FStructuredBufferAttribute
 {
-	FStructuredBufferAttribute(const TCHAR* InAttributeName, const TCHAR* InAttributeType, FNiagaraTypeDefinition InTypeDef, FText InDescription)
+	FStructuredBufferAttribute(const TCHAR* InAttributeName, FNiagaraTypeDefinition InTypeDef, FText InDescription)
 		: AttributeName(InAttributeName)
-		, AttributeType(InAttributeType)
 		, TypeDef(InTypeDef)
 		, Description(InDescription)
 	{
@@ -25,7 +26,6 @@ struct FStructuredBufferAttribute
 	}
 
 	const TCHAR* AttributeName;
-	const TCHAR* AttributeType;
 	FName					DisplayFunctionName;
 	FNiagaraTypeDefinition	TypeDef;
 	FText					Description;
@@ -35,8 +35,8 @@ static TConstArrayView<FStructuredBufferAttribute> GetStructuredBufferAttributes
 {
 	static const TArray<FStructuredBufferAttribute> StructuredBufferAttributes =
 	{
-		FStructuredBufferAttribute(TEXT("BoidsPosition"),		TEXT("float3"),	FNiagaraTypeDefinition::GetVec3Def(), FText::GetEmpty()),
-		FStructuredBufferAttribute(TEXT("BoidsVelocity"),		TEXT("float3"),	FNiagaraTypeDefinition::GetVec3Def(), FText::GetEmpty()),
+		FStructuredBufferAttribute(TEXT("BoidsPosition"),		FNiagaraTypeDefinition::GetVec3Def(), FText::GetEmpty()),
+		FStructuredBufferAttribute(TEXT("BoidsVelocity"),		FNiagaraTypeDefinition::GetVec3Def(), FText::GetEmpty()),
 	};
 
 	return MakeArrayView(StructuredBufferAttributes);

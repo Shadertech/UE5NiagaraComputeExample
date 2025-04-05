@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
 #include "BoidsRPSUBCS.h"
 #include "RenderGraphBuilder.h"
 #include "Utils/ComputeFunctionLibrary.h"

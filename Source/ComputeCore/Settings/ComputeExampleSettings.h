@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
 #pragma once
 
 #include "Engine/DeveloperSettings.h"

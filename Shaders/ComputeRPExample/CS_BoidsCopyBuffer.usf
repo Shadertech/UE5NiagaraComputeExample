@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
 #include "/Engine/Public/Platform.ush"
 #include "/ComputeCore/Libs/BoidsStruct.ush"
 

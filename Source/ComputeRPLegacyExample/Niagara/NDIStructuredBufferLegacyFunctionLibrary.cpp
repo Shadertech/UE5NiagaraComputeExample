@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
 
 #include "Niagara/NDIStructuredBufferLegacyFunctionLibrary.h"
 
@@ -11,7 +10,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraDataInterfaceStructuredBufferLegacy.h"
 
-void UNDIStructuredBufferLegacyFunctionLibrary::SetNiagaraStructuredBuffer(UNiagaraComponent* NiagaraComponent, FName OverrideName, int32 numBoids, FShaderResourceViewRHIRef readRef)
+void UNDIStructuredBufferLegacyFunctionLibrary::SetNiagaraStructuredBufferLegacy(UNiagaraComponent* NiagaraComponent, FName OverrideName, int32 numBoids, FShaderResourceViewRHIRef readRef)
 {
 	if (UNiagaraDataInterfaceStructuredBufferLegacy* SBDI = UNiagaraFunctionLibrary::GetDataInterface<UNiagaraDataInterfaceStructuredBufferLegacy>(NiagaraComponent, OverrideName))
 	{

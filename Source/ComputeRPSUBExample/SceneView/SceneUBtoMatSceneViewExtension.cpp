@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
 #include "SceneUBtoMatSceneViewExtension.h"
 #include "ComputeShaders/BoidsRPSUBCS.h"
 #include "SceneRendererInterface.h"

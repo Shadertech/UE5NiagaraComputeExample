@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
 #include "BoidsDrawerGB.h"
 #include "RenderGraphUtils.h"
 #include "ComputeShaders/BoidsRPDrawerCS.h"

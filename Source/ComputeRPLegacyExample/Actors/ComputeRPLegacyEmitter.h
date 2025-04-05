@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -54,9 +56,9 @@ protected:
 
 private:
 	FBufferRHIRef readBuffer = nullptr;
-	FShaderResourceViewRHIRef readRef;
+	FShaderResourceViewRHIRef readRef = nullptr;
 	FBufferRHIRef writeBuffer = nullptr;
-	FUnorderedAccessViewRHIRef writeRef;
+	FUnorderedAccessViewRHIRef writeRef = nullptr;
 
 	int32 BoidItemSize = 0;
 

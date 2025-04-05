@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
 
 #include "ComputeRPSUBExample.h"
 #include "Interfaces/IPluginManager.h"

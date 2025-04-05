@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
 
 #pragma once
 
@@ -11,12 +11,12 @@ class UNiagaraComponent;
 /**
  * 
  */
-UCLASS(MinimalAPI)
-class UNDIStructuredBufferLegacyFunctionLibrary : public UBlueprintFunctionLibrary
+UCLASS()
+class COMPUTERPLEGACYEXAMPLE_API UNDIStructuredBufferLegacyFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 	
 public:
-	static COMPUTERPLEGACYEXAMPLE_API void SetNiagaraStructuredBuffer(UNiagaraComponent* NiagaraSystem, FName OverrideName, int32 numBoids, FShaderResourceViewRHIRef readRef);
+	static void SetNiagaraStructuredBufferLegacy(UNiagaraComponent* NiagaraSystem, FName OverrideName, int32 numBoids, FShaderResourceViewRHIRef readRef);
 	
 };

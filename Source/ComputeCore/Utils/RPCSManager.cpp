@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
 #include "RPCSManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "SceneRendering.h"

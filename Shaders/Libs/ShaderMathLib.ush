@@ -1,3 +1,9 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
+#ifndef ST_ShaderMathLib_defined
+
+#define ST_ShaderMathLib_defined 1
+
 // Basic random generation
 float randPCG(float min, float max, inout uint rngState)
 {
@@ -7,3 +13,5 @@ float randPCG(float min, float max, inout uint rngState)
     float f = ((word >> 22u) ^ word) / 4294967296.0;
     return f * (max - min) + min;
 }
+
+#endif

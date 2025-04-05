@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
 #include "ComputeRPEmitter.h"
 #include "GraphBuilder/BoidsGB.h"
 #include "Settings/ComputeExampleSettings.h"

@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
 #include "NiagaraDataInterfaceStructuredBufferLegacy.h"
 
 #include "NiagaraGpuComputeDispatchInterface.h"
@@ -170,11 +172,10 @@ bool UNiagaraDataInterfaceStructuredBufferLegacy::PerInstanceTick(void* PerInsta
 
 	FNDIStructuredBufferProxyLegacy* RT_Proxy = GetProxyAs<FNDIStructuredBufferProxyLegacy>();
 	ENQUEUE_RENDER_COMMAND(NDISB_UpdateInstance)(
-		[RT_Proxy, RT_InstanceID = SystemInstance->GetId(), RT_InstanceData = SystemInstance->GetId(), RT_NumBoids = numBoids, RT_ReadRef = readRef](FRHICommandListImmediate& RHICmdList)
+		[RT_Proxy, RT_InstanceID = SystemInstance->GetId(), RT_InstanceData = InstanceData](FRHICommandListImmediate& RHICmdList)
 		{
 			FNDIStructuredBufferInstanceDataLegacy_RenderThread* InstanceData = &RT_Proxy->SystemInstancesToProxyData_RT.FindOrAdd(RT_InstanceID);
-			InstanceData->numBoids = RT_NumBoids;
-			InstanceData->readRef = RT_ReadRef;
+			InstanceData->UpdateData(*RT_InstanceData);
 		}
 	);
 

@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
 #include "ComputeRPLegacyEmitter.h"
 #include "Kismet/GameplayStatics.h"
 #include "SceneRendering.h"
@@ -51,18 +53,22 @@ void AComputeRPLegacyEmitter::DisposeComputeShader_RenderThread(FRHICommandListI
 
 	if (readBuffer->IsValid())
 	{
+		readBuffer.SafeRelease();
 		readBuffer = nullptr;
 	}
 	if (writeBuffer->IsValid())
 	{
+		writeBuffer.SafeRelease();
 		writeBuffer = nullptr;
 	}
 	if (readRef->IsValid())
 	{
+		readRef.SafeRelease();
 		readRef = nullptr;
 	}
 	if (writeRef->IsValid())
 	{
+		writeRef.SafeRelease();
 		writeRef = nullptr;
 	}
 }
@@ -192,7 +198,7 @@ bool AComputeRPLegacyEmitter::SetConstantParameters()
 		return false;
 	}
 
-	UNDIStructuredBufferLegacyFunctionLibrary::SetNiagaraStructuredBuffer(Niagara, "boidsIn", BoidCurrentParameters.ConstantParameters.numBoids, nullptr);
+	UNDIStructuredBufferLegacyFunctionLibrary::SetNiagaraStructuredBufferLegacy(Niagara, "boidsIn", BoidCurrentParameters.ConstantParameters.numBoids, nullptr);
 
 	Niagara->SetIntParameter("numBoids", BoidCurrentParameters.ConstantParameters.numBoids);
 
@@ -213,7 +219,7 @@ bool AComputeRPLegacyEmitter::SetDynamicParameters()
 		return false;
 	}
 
-	UNDIStructuredBufferLegacyFunctionLibrary::SetNiagaraStructuredBuffer(Niagara, "boidsIn", BoidCurrentParameters.ConstantParameters.numBoids, readRef);
+	UNDIStructuredBufferLegacyFunctionLibrary::SetNiagaraStructuredBufferLegacy(Niagara, "boidsIn", BoidCurrentParameters.ConstantParameters.numBoids, readRef);
 
 	Niagara->SetFloatParameter("meshScale", BoidCurrentParameters.DynamicParameters.meshScale);
 	Niagara->SetFloatParameter("worldScale", BoidCurrentParameters.worldScale);

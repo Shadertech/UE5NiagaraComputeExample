@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
 
 #pragma once
 
@@ -22,10 +22,10 @@ class COMPUTERPLEGACYEXAMPLE_API UNiagaraDataInterfaceStructuredBufferLegacy : p
 	END_SHADER_PARAMETER_STRUCT()
 
 public:
-	int32 numBoids;
+	int32 numBoids = 0;
 
 private:
-	FShaderResourceViewRHIRef readRef;
+	FShaderResourceViewRHIRef readRef = nullptr;
 
 public:
 	 void SetBuffer(FShaderResourceViewRHIRef InBuffer)
@@ -65,8 +65,19 @@ public:
 
 struct FNDIStructuredBufferInstanceDataLegacy_GameThread
 {
-	FShaderResourceViewRHIRef readRef;
-	int32 numBoids;
+	FShaderResourceViewRHIRef readRef = nullptr;
+	int32 numBoids = 0;
+
+	~FNDIStructuredBufferInstanceDataLegacy_GameThread()
+	{
+		ReleaseData();
+	}
+
+	void ReleaseData()
+	{
+		numBoids = 0;
+		readRef.SafeRelease();
+	}
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -74,7 +85,25 @@ struct FNDIStructuredBufferInstanceDataLegacy_GameThread
 struct FNDIStructuredBufferInstanceDataLegacy_RenderThread
 {
 	FShaderResourceViewRHIRef readRef;
-	int32 numBoids;
+	int32 numBoids = 0;
+
+	~FNDIStructuredBufferInstanceDataLegacy_RenderThread()
+	{
+		ReleaseData();
+	}
+
+	void UpdateData(FNDIStructuredBufferInstanceDataLegacy_GameThread& InstanceData_GT)
+	{
+		ReleaseData();
+		readRef = InstanceData_GT.readRef;
+		numBoids = InstanceData_GT.numBoids;
+	}
+
+	void ReleaseData()
+	{
+		numBoids = 0;
+		readRef.SafeRelease();
+	}
 };
 
 struct FNDIStructuredBufferProxyLegacy : public FNiagaraDataInterfaceProxy
