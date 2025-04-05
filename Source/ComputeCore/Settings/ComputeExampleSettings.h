@@ -46,6 +46,6 @@ protected:
 	// UDeveloperSettings interface.
 	virtual FName GetCategoryName() const override
 	{
-		return TEXT("Plugins");
+		return TEXT("ShaderTech");
 	}
 };
