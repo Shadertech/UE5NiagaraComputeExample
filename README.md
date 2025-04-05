@@ -1,10 +1,10 @@
 # Niagara Compute Shader Example
 **Overview**:
 This project is an Unreal Engine 5 plugin that demonstrates compute shader integration with the Niagara particle system.
-There are a number of different ways this can be achieved. Each way has its own module.
+There are several different ways this can be achieved. Each way has its own module.
 I hope that this repo is a good place to start playing with UE5 graph builder.
 
-Temaran has produced an awesome resource to learn compute shaders and I suggest checking it out if you havent already [UnrealEngineShaderPluginDemo](https://github.com/Temaran/UnrealEngineShaderPluginDemo)
+Temaran has produced an awesome resource to learn how to write compute shaders and I suggest checking it out if you haven't already [UnrealEngineShaderPluginDemo](https://github.com/Temaran/UnrealEngineShaderPluginDemo)
 
 ![boidsVFX](https://github.com/Shadertech/UE5NiagaraComputeExample/assets/1611567/ddcfbcdf-dc87-4623-8435-26ac3993bab0)
 
@@ -28,7 +28,7 @@ Temaran has produced an awesome resource to learn compute shaders and I suggest 
 ### 3. ComputeRPSUBExample
 
 - **Overview**:
-  - Demonstrates how to extend ComputeRPExample in order to pass shader data into materials by hooking into the scene buffer
+  - Demonstrates how to extend ComputeRPExample to pass shader data into materials by hooking into the scene buffer
 - **Examples**:
   - Example1: Structured Buffer -> Material
 
@@ -61,9 +61,9 @@ To integrate this plugin into your Unreal Engine project:
 
 ![subLevels](https://github.com/user-attachments/assets/4e8d3a40-5799-4aee-802d-34d79005b3ca)
 
-8. Enjoy. You can configure the plguin from the "ST Compute Example" Plugin Project Settings. You can even modify the values in runtime. :)
+8. Enjoy. You can configure the plugin from "ST Compute Example" in Project Settings. You can even modify the values in runtime. :)
 
-![boidsSettings ](https://github.com/user-attachments/assets/01dc0ca4-178c-450b-aa4a-77e4cfb95c04)
+![boidsSettings](https://github.com/user-attachments/assets/decc282a-6ce2-48cd-8ca0-aa450f946885)
 
 ## Contributing
 
