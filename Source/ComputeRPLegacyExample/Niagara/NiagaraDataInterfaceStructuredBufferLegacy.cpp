@@ -2,6 +2,7 @@
 
 #include "NiagaraDataInterfaceStructuredBufferLegacy.h"
 
+#include "GlobalRenderResources.h"
 #include "NiagaraGpuComputeDispatchInterface.h"
 #include "NiagaraCompileHashVisitor.h"
 #include "NiagaraTypes.h"

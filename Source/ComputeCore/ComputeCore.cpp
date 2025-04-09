@@ -1,6 +1,8 @@
 // Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
 
 #include "ComputeCore.h"
+#include "Misc/Paths.h"
+#include "ShaderCore.h"
 #include "Interfaces/IPluginManager.h"
 
 #define LOCTEXT_NAMESPACE "FComputeCoreModule"

@@ -10,6 +10,7 @@
 #include "Base/ComputeActorBase.h"
 #include "RHICommandList.h"
 #include "RHIResources.h"
+#include "RHIFwd.h"
 
 #include "ComputeRPLegacyEmitter.generated.h"
 

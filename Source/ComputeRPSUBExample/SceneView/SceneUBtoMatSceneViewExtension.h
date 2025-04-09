@@ -2,6 +2,9 @@
 
 #pragma once
 #include "SceneViewExtension.h"
+#include "RenderGraphBuilder.h"
+#include "GlobalShader.h"
+#include "RenderGraphResources.h"
 #include "RenderGraphResources.h"
 
 struct FBoidsSceneUBtoMatSceneViewExt_GameThread

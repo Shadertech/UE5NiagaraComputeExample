@@ -3,6 +3,7 @@
 #include "Utils/ComputeFunctionLibrary.h"
 #include "RenderGraphUtils.h"
 #include "RenderGraphBuilder.h"
+#include "RenderGraphResources.h"
 #include "GlobalShader.h"
 
 FRDGBufferRef UComputeFunctionLibrary::CreateStructuredBuffer(

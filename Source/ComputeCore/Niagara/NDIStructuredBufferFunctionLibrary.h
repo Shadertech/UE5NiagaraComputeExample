@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "RenderGraphBuilder.h"
+#include "GlobalShader.h"
+#include "RenderGraphResources.h"
 #include "NDIStructuredBufferFunctionLibrary.generated.h"
 
 class UNiagaraComponent;

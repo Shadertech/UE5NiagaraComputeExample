@@ -3,7 +3,6 @@
 #include "SceneUBtoMatSceneViewExtension.h"
 #include "ComputeShaders/BoidsRPSUBCS.h"
 #include "SceneRendererInterface.h"
-#include "RenderGraphBuilder.h"
 #include "Data/BoidsLib.h"
 #include "Utils/ComputeFunctionLibrary.h"
 #include "SystemTextures.h"

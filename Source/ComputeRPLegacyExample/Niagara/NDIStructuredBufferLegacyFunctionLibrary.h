@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "RHIFwd.h"
 #include "NDIStructuredBufferLegacyFunctionLibrary.generated.h"
 
 class UNiagaraComponent;

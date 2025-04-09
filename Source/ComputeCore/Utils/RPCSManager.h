@@ -6,6 +6,7 @@
 #include "Utils/ManagedRPCSInterface.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "Tickable.h"
+#include "RenderCommandFence.h"
 #include "RPCSManager.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogRPCSManager, Log, All);
