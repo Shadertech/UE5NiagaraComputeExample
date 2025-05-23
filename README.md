@@ -66,7 +66,7 @@ To integrate this plugin into your Unreal Engine project:
 
 ![subLevels](https://github.com/user-attachments/assets/4e8d3a40-5799-4aee-802d-34d79005b3ca)
 
-8. Enjoy. You can configure the plugin from "ST Compute Example" in Project Settings. You can even modify the values in runtime. :)
+8. Go ahead and configure the relevant module found inside the ShaderTech category of the Project Settings. The "Boid Dynamic Parameters" values can be modified in runtime. Enjoy!
 
 ![ComputeRPExampleSettings](https://github.com/user-attachments/assets/8be4ec88-532b-4e8a-9102-6d1049769f4c)
 ![ComputeRPLegacyExampleSettings](https://github.com/user-attachments/assets/724374cf-53d5-4838-ab4e-ec62e23fa7c3)
