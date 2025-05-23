@@ -1,0 +1,44 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
+#include "/Engine/Public/Platform.ush"
+#include "/ComputeCore/Shared/Libs/BoidsStruct.ush"
+
+StructuredBuffer<FBoidItem> boidsIn;
+RWTexture2D<float4> OutputTexture;
+//RWTexture2D<uint> OutputTexture;
+float2 textureSize;
+uint numBoids;
+
+[numthreads(THREADGROUPSIZE_X, THREADGROUPSIZE_Y, THREADGROUPSIZE_Z)]
+void DrawBoids(uint3 id : SV_DispatchThreadID, uint GIndex : SV_GroupIndex, uint Gid : SV_GroupID)
+{
+    //uint textureSizeXY = (numBoids / 2);
+    if (id.x >= textureSize.x || id.y >= textureSize.y)
+    {
+        return;
+    }
+ 
+    //float2 iResolution = float2(textureSizeXY, textureSizeXY);
+    //float2 uv = (id.xy / iResolution.xy) - 0.5;
+    uint index = id.x + id.y * textureSize.x;
+    
+    float4 outputColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    
+    if (index < numBoids)
+    {
+        FBoidItem boid = boidsIn[index];
+  
+        outputColor = float4(boid.pos.xyz, 1.0f);
+    }
+ //   // Since there are limitations on operations that can be done on certain formats when using compute shaders
+	//// I elected to go with the most flexible one (UINT 32bit) and do my packing manually to simulate an R8G8B8A8_UINT format.
+	//// There might be better ways to do this :)
+ //   uint r = outputColor.r * 255.0f;
+ //   uint g = ((uint) (outputColor.g * 255.0)) << 8;
+ //   uint b = ((uint) (outputColor.b * 255.0)) << 16;
+ //   uint a = ((uint) (outputColor.a * 255.0)) << 24;
+    
+    //OutputTexture[id.xy] = ;r | g | b | a;
+    OutputTexture[id.xy] = outputColor;
+
+}

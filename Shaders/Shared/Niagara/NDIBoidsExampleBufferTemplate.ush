@@ -1,0 +1,34 @@
+// Copyright (c) 2025 Aaron Trotter (ShaderTech). All Rights Reserved.
+
+#include "/ComputeCore/Shared/Libs/BoidsStruct.ush"
+
+StructuredBuffer<FBoidItem> {ParameterName}_boidsIn;
+int {ParameterName}_numBoids;
+
+void SampleBoidsPosition_{ParameterName}(in int id, out bool IsValid, out float3 Out_Value)
+{
+	if(id >= {ParameterName}_numBoids)
+	{
+		IsValid = false;
+		Out_Value = 0;
+		return;
+	}
+
+	IsValid = true;
+	//Out_Value = float3((float)id, 0.0f, 0.0f);
+	Out_Value = {ParameterName}_boidsIn[id].pos;
+}
+
+void SampleBoidsVelocity_{ParameterName}(in int id, out bool IsValid, out float3 Out_Value)
+{
+	if(id >= {ParameterName}_numBoids)
+	{
+		IsValid = false;
+		Out_Value = 0;
+		return;
+	}
+
+	IsValid = true;
+	//Out_Value = float3(0.0f, 0.0f, 0.0f);
+	Out_Value = {ParameterName}_boidsIn[id].vel;
+}

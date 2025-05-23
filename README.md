@@ -1,5 +1,7 @@
-# Niagara Compute Shader Example
-**Overview**:
+# Niagara Compute Shader Integration
+
+## Overview
+
 This project is an Unreal Engine 5 plugin that demonstrates compute shader integration with the Niagara particle system.
 There are several different ways this can be achieved. Each way has its own module.
 I hope that this repo is a good place to start playing with UE5 graph builder.
@@ -74,6 +76,9 @@ Contributions to this project are welcome. Please follow the standard GitHub wor
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Release Notes
+
+### v0.1.3
+- BREAKING CHANGES - Renamed all files and classes and prepared the plugin to release free of charge of the Fab marketplace. There is now individual settings for each module.
 
 ### v0.1.2
 - Refactor (won't be an easy upgrade if you have extended a lot of the logic from the last version as I renamed a lot of files and folders)
