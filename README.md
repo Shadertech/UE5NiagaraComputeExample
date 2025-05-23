@@ -3,12 +3,15 @@
 ## Overview
 
 This project is an Unreal Engine 5 plugin that demonstrates compute shader integration with the Niagara particle system.
-There are several different ways this can be achieved. Each way has its own module.
+There are several different methods to achieve this, each has its own module.
+I have provided an easy-to-configure boids example for each method.
 I hope that this repo is a good place to start playing with UE5 graph builder.
+
+Checkout the repo's [product page](https://aarontrotter.com/niagara-cs-integration/) for more information
 
 Temaran has produced an awesome resource to learn how to write compute shaders and I suggest checking it out if you haven't already [UnrealEngineShaderPluginDemo](https://github.com/Temaran/UnrealEngineShaderPluginDemo)
 
-![boidsVFX](https://github.com/Shadertech/UE5NiagaraComputeExample/assets/1611567/ddcfbcdf-dc87-4623-8435-26ac3993bab0)
+![boidsVFX](https://github.com/user-attachments/assets/002d4802-f1b4-402e-b06f-34c67bafe741)
 
 ## Modules
 
@@ -65,7 +68,10 @@ To integrate this plugin into your Unreal Engine project:
 
 8. Enjoy. You can configure the plugin from "ST Compute Example" in Project Settings. You can even modify the values in runtime. :)
 
-![boidsSettings](https://github.com/user-attachments/assets/decc282a-6ce2-48cd-8ca0-aa450f946885)
+![ComputeRPExampleSettings](https://github.com/user-attachments/assets/8be4ec88-532b-4e8a-9102-6d1049769f4c)
+![ComputeRPLegacyExampleSettings](https://github.com/user-attachments/assets/724374cf-53d5-4838-ab4e-ec62e23fa7c3)
+![ComputeRPSUBExampleSettings](https://github.com/user-attachments/assets/f3f6f6ba-33f6-4ab2-999a-fe89ee2c78a1)
+![NiagaraExampleSettings](https://github.com/user-attachments/assets/1d62a0b7-7101-4721-8458-a56da543c46a)
 
 ## Contributing
 
